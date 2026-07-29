@@ -10,7 +10,11 @@ exercício, prova, intervalo.
 Software livre, sob licença [GPL-3.0](LICENSE). Gratuito para qualquer
 professor usar, e aberto para quem quiser melhorar.
 
-**[⬇ Baixar a última versão](../../releases/latest)**
+### **[⬇ Baixar o CronoAula.exe](https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe)**
+
+Baixa apenas o programa, um arquivo só. Você não precisa do código-fonte para
+usá-lo. Se quiser ver todas as versões, use a página de
+[Releases](https://github.com/manfredjr/cronoaula/releases).
 
 ---
 
@@ -79,11 +83,15 @@ O mesmo texto está dentro do programa, em **botão direito**, na opção
 **Não existe instalador, e você não precisa de um.** Nem do .NET, nem de
 bibliotecas, nem de privilégio de administrador.
 
-1. Baixe o `CronoAula.exe` na página de
-   **[Releases](../../releases/latest)**.
+1. Baixe o
+   **[CronoAula.exe](https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe)**.
 2. Copie o arquivo para qualquer pasta do seu computador (por exemplo, a Área
    de Trabalho).
 3. Dê um duplo clique nele.
+
+O link acima entrega sempre a versão mais recente. Não é preciso baixar o
+código-fonte: ele interessa a quem quiser estudar ou modificar o programa, não
+a quem só quer usá-lo em aula.
 
 Só isso. É um arquivo único e autossuficiente: o runtime do .NET, a interface
 gráfica, o ícone e os dois sons estão todos embutidos dentro dele.
