@@ -10,7 +10,7 @@ exercício, prova, intervalo.
 Software livre, sob licença [GPL-3.0](LICENSE). Gratuito para qualquer
 professor usar, e aberto para quem quiser melhorar.
 
-### **[⬇ Baixar o CronoAula.exe](https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe)**
+### **[Baixar o CronoAula.exe](https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe)**
 
 Baixa apenas o programa, um arquivo só. Você não precisa do código-fonte para
 usá-lo. Se quiser ver todas as versões, use a página de
@@ -597,7 +597,7 @@ Distribuído sob a **[GNU General Public License v3.0](LICENSE)**.
 
 Você pode usar, estudar, modificar e redistribuir o programa livremente. Se
 distribuir uma versão modificada, precisa também disponibilizar o código-fonte
-dela sob a mesma licença — assim as melhorias continuam chegando a todos os
+dela sob a mesma licença - assim as melhorias continuam chegando a todos os
 professores.
 
 O programa é fornecido sem garantia de qualquer tipo, conforme os termos da

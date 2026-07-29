@@ -19,7 +19,7 @@ Não é preciso ser programador para ajudar.
 - se dá para repetir o problema e como.
 
 **Sugerir uma melhoria.** Também pelas *issues*. Explique o cenário de aula em
-que a mudança faria diferença — o contexto pedagógico é mais útil que a
+que a mudança faria diferença - o contexto pedagógico é mais útil que a
 descrição técnica da solução.
 
 **Contar como você usa.** Cada disciplina organiza o tempo de um jeito. Saber
@@ -78,7 +78,7 @@ gráfica, e é assim que deve continuar. Mudou `TimerEngine`, `TimeParser`,
 
 **Sem dependências externas.** O programa é um arquivo único, autossuficiente,
 sem instalador e sem runtime na máquina. Um pacote NuGet novo precisa de uma
-justificativa forte — na prática, quase nunca vale a pena.
+justificativa forte - na prática, quase nunca vale a pena.
 
 **Sem rede e sem telemetria.** O CronoAula não acessa a internet e não coleta
 nada. Isso não é detalhe de implementação, é uma promessa feita ao usuário.
@@ -92,8 +92,8 @@ laboratório e computador de escola, onde o professor muitas vezes não é admin
 de slides pelo teclado trava no meio da aula.
 
 **Português nos textos de interface.** As mensagens visíveis ao usuário são em
-português do Brasil. Comentários e nomes de código também estão em português —
-mantenha o padrão do arquivo que você está editando.
+português do Brasil. Comentários e nomes de código também estão em português.
+Mantenha o padrão do arquivo que você está editando.
 
 ### Antes de abrir um PR grande
 
@@ -102,7 +102,7 @@ issue antes para conversarmos. Evita você investir tempo em algo que não se
 encaixa no rumo do projeto.
 
 Há uma lista do que está fora do escopo desta versão na seção
-"Ainda não implementado" do [README](README.md) — são bons pontos de partida.
+"Ainda não implementado" do [README](README.md) - são bons pontos de partida.
 
 ---
 
