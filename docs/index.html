@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CronoAula — cronômetro de contagem regressiva para sala de aula</title>
+<meta name="description" content="Cronômetro regressivo que fica visível por cima do PowerPoint e do ambiente de programação. Gratuito, sem instalador, para professores. Software livre.">
+<link rel="icon" href="favicon.ico">
+<meta property="og:title" content="CronoAula — cronômetro para sala de aula">
+<meta property="og:description" content="Cronômetro regressivo que fica visível por cima de apresentações. Gratuito, sem instalador, feito para professores.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cronoaula.manfred.com.br/">
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --border: #e2e5ea;
+    --ink: #16181d;
+    --ink-soft: #545a66;
+    --accent: #1f6feb;
+    --accent-ink: #ffffff;
+    --warn-bg: #fff8e6;
+    --warn-border: #f0d089;
+    --warn-ink: #6b4e00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1116;
+      --surface: #171a21;
+      --border: #272b34;
+      --ink: #e8eaee;
+      --ink-soft: #a0a7b4;
+      --accent: #4d8ef7;
+      --accent-ink: #0b0d11;
+      --warn-bg: #2a2314;
+      --warn-border: #55471f;
+      --warn-ink: #e8d194;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 22px; }
+  h1, h2, h3 { line-height: 1.25; letter-spacing: -0.015em; }
+
+  /* ---- topo ---- */
+  header { padding: 68px 0 44px; text-align: center; }
+  h1 { font-size: 2.6rem; margin: 0 0 12px; }
+  .lede { font-size: 1.18rem; color: var(--ink-soft); margin: 0 auto 34px; max-width: 33em; }
+
+  /* ---- mock do cronometro ---- */
+  .mock {
+    background: #10131a;
+    border: 1px solid #272b34;
+    border-radius: 12px;
+    padding: 26px 34px 22px;
+    display: inline-block;
+    box-shadow: 0 12px 34px rgba(0,0,0,.22);
+    margin-bottom: 38px;
+  }
+  .mock .digits {
+    font: 600 3.3rem/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    color: #ffb454;
+    letter-spacing: 0.04em;
+  }
+  .mock .label {
+    font-size: .74rem; text-transform: uppercase; letter-spacing: .13em;
+    color: #6f7684; margin-top: 12px;
+  }
+
+  /* ---- botoes ---- */
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; }
+  .btn {
+    display: inline-block; text-decoration: none; font-weight: 600;
+    padding: 15px 30px; border-radius: 9px; font-size: 1.05rem;
+    border: 1px solid transparent; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .88; }
+  .btn-main { background: var(--accent); color: var(--accent-ink); }
+  .btn-alt { border-color: var(--border); color: var(--ink); background: var(--surface); }
+  .fineprint { font-size: .88rem; color: var(--ink-soft); margin-top: 16px; }
+
+  /* ---- secoes ---- */
+  section { padding: 30px 0; border-top: 1px solid var(--border); }
+  section h2 { font-size: 1.45rem; margin: 0 0 16px; }
+  p { margin: 0 0 16px; }
+
+  ul.feats { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  @media (min-width: 620px) { ul.feats { grid-template-columns: 1fr 1fr; } }
+  ul.feats li {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 9px; padding: 15px 17px; font-size: .96rem;
+  }
+  ul.feats strong { display: block; margin-bottom: 3px; }
+
+  .warn {
+    background: var(--warn-bg); border: 1px solid var(--warn-border);
+    color: var(--warn-ink); border-radius: 9px; padding: 17px 19px; font-size: .95rem;
+  }
+  .warn p:last-child { margin-bottom: 0; }
+
+  ol { padding-left: 1.25em; }
+  ol li { margin-bottom: 8px; }
+
+  a { color: var(--accent); }
+  footer {
+    border-top: 1px solid var(--border); margin-top: 34px;
+    padding: 30px 0 54px; font-size: .89rem; color: var(--ink-soft); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <h1>CronoAula</h1>
+  <p class="lede">
+    Cronômetro de contagem regressiva para aulas. Fica num canto da tela, sempre
+    visível por cima do PowerPoint e do ambiente de programação, sem atrapalhar o
+    conteúdo projetado.
+  </p>
+
+  <div class="mock">
+    <div class="digits">04:37</div>
+    <div class="label">tempo de exercício</div>
+  </div>
+
+  <div class="cta">
+    <a class="btn btn-main" href="https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe">
+      ⬇ Baixar o CronoAula
+    </a>
+    <a class="btn btn-alt" href="https://github.com/manfredjr/cronoaula">Ver o projeto no GitHub</a>
+  </div>
+  <p class="fineprint">
+    Gratuito e de código aberto · Windows 10 ou 11, 64 bits · Arquivo único, sem instalador
+  </p>
+</header>
+
+<main class="wrap">
+
+<section>
+  <h2>Por que ele existe</h2>
+  <p>
+    Nas aulas de programação o tempo é parte da estratégia. A aula se organiza em
+    ciclos: explicação, atividade prática, tempo de desenvolvimento e correção
+    comentada. Se uma etapa estoura, compromete todas as seguintes.
+  </p>
+  <p>
+    Esse controle costuma ser feito com o cronômetro do Google, o que obriga a
+    manter o navegador aberto e alternar entre janelas, interrompendo a
+    apresentação ou o ambiente de programação bem no meio da explicação.
+  </p>
+  <p>
+    O CronoAula resolve isso: ele permanece visível durante toda a atividade, sem
+    tirar o foco dos slides nem do código. Os alunos veem quanto tempo têm, e o
+    professor conduz a aula sem parar para olhar as horas.
+  </p>
+</section>
+
+<section>
+  <h2>O que ele faz</h2>
+  <ul class="feats">
+    <li><strong>Fica por cima de tudo</strong>Inclusive de apresentações em tela cheia e do ambiente de programação.</li>
+    <li><strong>Transparência ajustável</strong>Acompanhe o tempo sem esconder o conteúdo projetado.</li>
+    <li><strong>Modo tela cheia</strong>Projete o tempo para a turma inteira, no monitor que você escolher.</li>
+    <li><strong>Atalhos de teclado</strong>Inicie, pause e zere sem tirar o foco da apresentação.</li>
+    <li><strong>Avisos por cor e som</strong>Amarelo, laranja e vermelho piscando, com dois sons distintos.</li>
+    <li><strong>Continua contando em negativo</strong>Você sabe exatamente quantos minutos a atividade estourou.</li>
+    <li><strong>Tempos rápidos</strong>Botões de 5, 10, 15, 30 e 50 minutos, mais tempo personalizado.</li>
+    <li><strong>Funciona sem internet</strong>Sem telemetria, sem rede e sem privilégio de administrador.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Como instalar</h2>
+  <ol>
+    <li>Baixe o <a href="https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe">CronoAula.exe</a>.</li>
+    <li>Copie o arquivo para qualquer pasta, por exemplo a Área de Trabalho.</li>
+    <li>Dê um duplo clique nele.</li>
+  </ol>
+  <p>
+    Não existe instalador e você não precisa de um. É um arquivo único e
+    autossuficiente: o runtime, a interface, o ícone e os sons estão todos dentro
+    dele.
+  </p>
+
+  <div class="warn">
+    <p>
+      <strong>Duas coisas na primeira vez.</strong>
+    </p>
+    <p>
+      A primeira abertura demora cerca de 10 segundos. Acontece uma única vez por
+      versão; depois disso o programa abre em menos de 1 segundo.
+    </p>
+    <p>
+      O Windows pode exibir <em>"O Windows protegeu o seu computador"</em>. Isso
+      acontece porque o programa não tem assinatura digital, que é um certificado
+      pago, e não porque haja algo errado com ele. Clique em
+      <strong>Mais informações</strong> e depois em
+      <strong>Executar assim mesmo</strong>.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2>Código aberto</h2>
+  <p>
+    O CronoAula é software livre, sob licença
+    <a href="https://github.com/manfredjr/cronoaula/blob/main/LICENSE">GPL-3.0</a>.
+    Qualquer professor pode usar, estudar e adaptar a ferramenta, e as melhorias
+    permanecem abertas a todos.
+  </p>
+  <p>
+    Se algo atrapalhou na sua aula ou você tem uma sugestão, escreva em
+    <a href="https://github.com/manfredjr/cronoaula/issues">Issues</a>. Relatar o
+    que incomoda já é contribuir, mesmo sem escrever uma linha de código.
+  </p>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <p>
+    CronoAula — o tempo como parte da aprendizagem.<br>
+    © 2026 MT · Manfred Tecnologia LTDA · Licença GPL-3.0
+  </p>
+</footer>
+
+</body>
+</html>
