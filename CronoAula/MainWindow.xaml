@@ -1,0 +1,223 @@
+<Window x:Class="CronoAula.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CronoAula"
+        Icon="Assets/cronoaula.ico"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual">
+
+    <Window.Resources>
+        <!-- Paleta -->
+        <SolidColorBrush x:Key="FundoJanela"   Color="#F21C1C1E"/>
+        <SolidColorBrush x:Key="BordaJanela"   Color="#33FFFFFF"/>
+        <SolidColorBrush x:Key="TextoNormal"   Color="#FFEDEDED"/>
+        <SolidColorBrush x:Key="TextoSecund"   Color="#FF9A9AA0"/>
+        <SolidColorBrush x:Key="BotaoFundo"    Color="#FF2E2E33"/>
+        <SolidColorBrush x:Key="BotaoHover"    Color="#FF3E3E45"/>
+        <SolidColorBrush x:Key="BotaoAtivo"    Color="#FF4C6EF5"/>
+
+        <!-- Botao base, visual plano e discreto -->
+        <Style x:Key="BotaoBase" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BotaoFundo}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoNormal}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Fundo"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Fundo" Property="Background"
+                                        Value="{StaticResource BotaoHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botao de tempo rapido (5, 10, 15, 30, 50) -->
+        <Style x:Key="BotaoPreset" TargetType="Button" BasedOn="{StaticResource BotaoBase}">
+            <Setter Property="MinWidth" Value="36"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
+
+        <!-- Botao principal (Iniciar / Pausar / Continuar) -->
+        <Style x:Key="BotaoPrincipal" TargetType="Button" BasedOn="{StaticResource BotaoBase}">
+            <Setter Property="Background" Value="{StaticResource BotaoAtivo}"/>
+            <Setter Property="MinWidth" Value="76"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="CaixaTexto" TargetType="TextBox">
+            <Setter Property="Background" Value="#FF232327"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoNormal}"/>
+            <Setter Property="BorderBrush" Value="#33FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CaretBrush" Value="{StaticResource TextoNormal}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Padding" Value="5,3"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Menu de contexto (botao direito em qualquer ponto da janela) -->
+    <Window.ContextMenu>
+        <ContextMenu x:Name="MenuContexto">
+            <MenuItem Header="Tamanho">
+                <MenuItem x:Name="MenuTamPequeno" Header="Pequeno" IsCheckable="True" Click="MenuTamanho_Click" Tag="Pequeno"/>
+                <MenuItem x:Name="MenuTamMedio"   Header="Médio"   IsCheckable="True" Click="MenuTamanho_Click" Tag="Medio"/>
+                <MenuItem x:Name="MenuTamGrande"  Header="Grande"  IsCheckable="True" Click="MenuTamanho_Click" Tag="Grande"/>
+            </MenuItem>
+            <MenuItem Header="Opacidade">
+                <MenuItem Header="30%"  Click="MenuOpacidade_Click" Tag="0.30"/>
+                <MenuItem Header="50%"  Click="MenuOpacidade_Click" Tag="0.50"/>
+                <MenuItem Header="70%"  Click="MenuOpacidade_Click" Tag="0.70"/>
+                <MenuItem Header="90%"  Click="MenuOpacidade_Click" Tag="0.90"/>
+                <MenuItem Header="100%" Click="MenuOpacidade_Click" Tag="1.00"/>
+            </MenuItem>
+            <MenuItem Header="Mover para">
+                <MenuItem Header="Superior esquerdo" Click="MenuCanto_Click" Tag="SE"/>
+                <MenuItem Header="Superior direito"  Click="MenuCanto_Click" Tag="SD"/>
+                <MenuItem Header="Inferior esquerdo" Click="MenuCanto_Click" Tag="IE"/>
+                <MenuItem Header="Inferior direito"  Click="MenuCanto_Click" Tag="ID"/>
+            </MenuItem>
+            <Separator/>
+            <!-- Os submenus de monitor sao montados em tempo de execucao,
+                 porque dependem de quantas telas estao conectadas na hora. -->
+            <MenuItem x:Name="MenuTelaCheia" Header="Tela cheia (F11)" Click="MenuTelaCheia_Click"/>
+            <Separator/>
+            <MenuItem x:Name="MenuSilenciar" Header="Silenciar alerta" Click="MenuSilenciar_Click"/>
+            <Separator/>
+            <MenuItem x:Name="MenuSempreTopo" Header="Sempre por cima" IsCheckable="True" Click="MenuSempreTopo_Click"/>
+            <MenuItem x:Name="MenuBarraTarefas" Header="Mostrar na barra de tarefas" IsCheckable="True" Click="MenuBarraTarefas_Click"/>
+            <Separator/>
+            <MenuItem Header="Preferências..." Click="MenuPreferencias_Click"/>
+            <MenuItem Header="Sobre o CronoAula..." Click="MenuSobre_Click"/>
+            <Separator/>
+            <MenuItem Header="Sair" Click="MenuSair_Click"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+
+    <Grid>
+        <!-- ============================================================
+             MODO NORMAL
+             Os tres tamanhos alteram apenas a fonte do mostrador. Os botoes
+             mantem sempre as mesmas medidas: eles sao alvo de clique, e um
+             alvo nao precisa crescer junto com os digitos.
+             ============================================================ -->
+        <Border x:Name="PainelNormal"
+                Background="{StaticResource FundoJanela}"
+                BorderBrush="{StaticResource BordaJanela}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="12,10">
+            <StackPanel>
+
+                <!-- Mostrador -->
+                <TextBlock x:Name="Mostrador"
+                           Text="00:00"
+                           FontFamily="Consolas"
+                           FontSize="46"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextoNormal}"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,2"/>
+
+                <!-- Linha de estado (pausado, estourado, etc.) -->
+                <TextBlock x:Name="Estado"
+                           Text=""
+                           FontFamily="Segoe UI"
+                           FontSize="10"
+                           Foreground="{StaticResource TextoSecund}"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,7"/>
+
+                <!-- Tempos rapidos: preenchidos em tempo de execucao a partir das preferencias -->
+                <StackPanel x:Name="PainelPresets"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,3"/>
+
+                <!-- Controles principais -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
+                    <Button x:Name="BotaoPrimario" Style="{StaticResource BotaoPrincipal}"
+                            Content="Iniciar" Click="BotaoPrimario_Click"/>
+                    <Button Style="{StaticResource BotaoBase}" Content="Zerar" Click="BotaoZerar_Click"/>
+                    <Button Style="{StaticResource BotaoBase}" Content="+1 min" Click="BotaoMaisUm_Click"/>
+                </StackPanel>
+
+                <!-- Tempo personalizado -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBox x:Name="CampoTempo"
+                             Style="{StaticResource CaixaTexto}"
+                             Width="72"
+                             ToolTip="Escreva MM:SS, como 25:30, ou só os minutos, como 25"
+                             KeyDown="CampoTempo_KeyDown"/>
+                    <Button Style="{StaticResource BotaoBase}" Content="Carregar" Click="BotaoCarregar_Click"/>
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+
+        <!-- ============================================================
+             MODO TELA CHEIA
+             Para provas e atividades longas projetadas para a turma.
+             Fundo preto solido: no projetor, contraste vale mais que
+             discricao. O Viewbox faz os digitos ocuparem a tela inteira
+             sem nenhum calculo de fonte.
+             ============================================================ -->
+        <Grid x:Name="PainelTelaCheia" Background="#FF000000" Visibility="Collapsed">
+            <Viewbox Stretch="Uniform" Margin="60,40,60,40">
+                <TextBlock x:Name="MostradorCheio"
+                           Text="00:00"
+                           FontFamily="Consolas"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextoNormal}"
+                           TextAlignment="Center"/>
+            </Viewbox>
+
+            <!-- Controles discretos: aparecem ao mover o mouse e somem sozinhos -->
+            <Border x:Name="ControlesTelaCheia"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,34"
+                    Background="#CC1C1C1E"
+                    CornerRadius="10"
+                    Padding="10,8"
+                    Opacity="0">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BotaoPrimarioCheio" Style="{StaticResource BotaoPrincipal}"
+                            Content="Iniciar" Click="BotaoPrimario_Click"/>
+                    <Button Style="{StaticResource BotaoBase}" Content="Zerar" Click="BotaoZerar_Click"/>
+                    <Button Style="{StaticResource BotaoBase}" Content="+1 min" Click="BotaoMaisUm_Click"/>
+                    <Button Style="{StaticResource BotaoBase}" Content="Sair da tela cheia (Esc)"
+                            Click="BotaoSairTelaCheia_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,217 @@
+<Window x:Class="CronoAula.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sobre o CronoAula"
+        Icon="Assets/cronoaula.ico"
+        SizeToContent="Height"
+        Width="620"
+        MaxHeight="720"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#FF1F1F23"
+        Foreground="#FFEDEDED"
+        FontFamily="Segoe UI"
+        FontSize="12.5"
+        ShowInTaskbar="False">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFEDEDED"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style x:Key="Corpo" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFC9C9CF"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="LineHeight" Value="19"/>
+            <Setter Property="Margin" Value="0,0,0,11"/>
+        </Style>
+        <Style x:Key="Secao" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF8AA4FF"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,4,0,7"/>
+        </Style>
+        <Style x:Key="Item" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFC9C9CF"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="LineHeight" Value="19"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="Lema" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF8AA4FF"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#FF4C6EF5"/>
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="18,6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Cabecalho e rodape fixos; so o texto rola, para a janela caber em
+         telas de notebook sem cortar o botao Fechar. -->
+    <Grid Margin="22,18,22,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabecalho -->
+        <StackPanel Grid.Row="0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                <Image Source="Assets/cronoaula.ico" Width="52" Height="52"
+                       VerticalAlignment="Top" Margin="0,0,14,0"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="CronoAula" FontSize="21" FontWeight="Bold"/>
+                    <TextBlock Text="Cronômetro de contagem regressiva para sala de aula"
+                               Foreground="#FF9A9AA0" FontSize="12" Margin="0,2,0,0"/>
+                    <TextBlock x:Name="LblVersao" Text="Versão 1.0.0"
+                               Foreground="#FF6E6E76" FontSize="11" Margin="0,3,0,0"/>
+                </StackPanel>
+            </StackPanel>
+            <Border Height="1" Background="#22FFFFFF" Margin="0,0,0,12"/>
+        </StackPanel>
+
+        <!-- Corpo rolavel -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      PanningMode="VerticalOnly" Padding="0,0,10,0">
+            <StackPanel>
+
+                <TextBlock Text="Por que ele existe" Style="{StaticResource Secao}" Margin="0,0,0,7"/>
+
+                <TextBlock Style="{StaticResource Corpo}">
+                    Nas aulas de Fundamentos de Programação, o tempo é parte da
+                    estratégia pedagógica.
+                </TextBlock>
+
+                <TextBlock Style="{StaticResource Corpo}">
+                    A disciplina começa pelo desenvolvimento do raciocínio lógico,
+                    pela organização de etapas e pela construção de soluções claras
+                    para cada problema. Ao longo do semestre, os alunos avançam por
+                    conteúdos como entrada e saída de dados, estruturas condicionais,
+                    estruturas de repetição, vetores, matrizes e funções. Cada
+                    conteúdo novo depende da compreensão do anterior.
+                </TextBlock>
+
+                <TextBlock Style="{StaticResource Corpo}">
+                    Na Metodologia em Escalada, a aula é organizada em ciclos:
+                    explicação, atividade prática, tempo de desenvolvimento, correção
+                    comentada e consolidação do conteúdo. O professor apresenta um
+                    problema, define um período para que os alunos desenvolvam a
+                    solução e, ao final, faz a correção com a turma. Isso estimula o
+                    raciocínio individual, a aplicação prática dos conceitos e a
+                    identificação das dificuldades antes de avançar.
+                </TextBlock>
+
+                <TextBlock Style="{StaticResource Corpo}" Margin="0,0,0,7">
+                    Por isso o controle do tempo de cada atividade é essencial. O
+                    cronômetro ajuda a:
+                </TextBlock>
+
+                <StackPanel Margin="10,0,0,11">
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" estabelecer objetivos claros para cada etapa;"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" manter o ritmo e a organização da aula;"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" equilibrar explicação, prática e correção;"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" informar aos alunos quanto tempo ainda têm;"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" evitar que uma atividade comprometa as etapas seguintes;"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" criar períodos de concentração e desenvolvimento autônomo;"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" conduzir exercícios, avaliações, apresentações e intervalos."/>
+                    </TextBlock>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource Corpo}">
+                    No início esse controle era feito com o cronômetro do Google. Ele
+                    cumpria a função, mas exigia manter o navegador aberto, alternar
+                    entre janelas e muitas vezes interromper a apresentação ou o
+                    ambiente de programação usado na aula.
+                </TextBlock>
+
+                <TextBlock Style="{StaticResource Corpo}">
+                    O CronoAula foi desenvolvido para resolver esse problema. É um
+                    cronômetro regressivo que permanece visível durante toda a
+                    atividade, sem interromper a explicação, os slides, o
+                    desenvolvimento dos algoritmos ou a correção dos exercícios.
+                </TextBlock>
+
+                <TextBlock Text="Principais recursos" Style="{StaticResource Secao}"/>
+
+                <StackPanel Margin="10,0,0,11">
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" Permanece sobre qualquer programa, inclusive apresentações e ambientes de programação."/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" Tem transparência ajustável, para acompanhar o tempo sem esconder o conteúdo."/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" Pode ser redimensionado e posicionado em qualquer canto da tela."/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" Exibe o tempo em tela cheia quando ele precisa ser projetado para toda a turma."/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" É controlado por atalhos de teclado, sem tirar o foco da apresentação ou do código."/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Item}">
+                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text=" Funciona sem internet, sem telemetria e sem permissões administrativas."/>
+                    </TextBlock>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource Corpo}">
+                    O CronoAula organiza o ritmo da aprendizagem. Enquanto o professor
+                    conduz a aula, os alunos veem o tempo disponível e sabem quando
+                    analisar, desenvolver, testar e concluir cada atividade.
+                </TextBlock>
+
+                <TextBlock Style="{StaticResource Lema}"
+                           Text="CronoAula - o tempo como parte da aprendizagem."/>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Rodape -->
+        <StackPanel Grid.Row="2">
+            <Border Height="1" Background="#22FFFFFF" Margin="0,14,0,12"/>
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="LblCopyright"
+                               Text="© 2026 MT - Manfred Tecnologia LTDA"
+                               Foreground="#FF9A9AA0" FontSize="11"/>
+                </StackPanel>
+                <Button Content="Fechar" Click="Fechar_Click" HorizontalAlignment="Right"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Window>

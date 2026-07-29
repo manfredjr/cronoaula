@@ -1,0 +1,16 @@
+# Normaliza fim de linha: LF no repositorio, CRLF na copia de trabalho no Windows
+* text=auto
+
+*.cs      text diff=csharp
+*.xaml    text
+*.csproj  text
+*.sln     text eol=crlf
+*.ps1     text eol=crlf
+*.md      text
+*.json    text
+
+# Binarios: nunca converter
+*.ico     binary
+*.wav     binary
+*.exe     binary
+*.png     binary

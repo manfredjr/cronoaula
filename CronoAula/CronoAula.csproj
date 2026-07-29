@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>CronoAula</AssemblyName>
+    <RootNamespace>CronoAula</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Icone do executavel: aparece no Explorer, na barra de tarefas e no Alt+Tab -->
+    <ApplicationIcon>Assets\cronoaula.ico</ApplicationIcon>
+
+    <!-- Metadados do executavel.
+         Nao e detalhe cosmetico: o SmartScreen e os antivirus dao mais confianca
+         a binarios com identificacao completa e consistente entre versoes. -->
+    <Product>CronoAula</Product>
+    <AssemblyTitle>CronoAula - Cronometro de Aula</AssemblyTitle>
+    <Company>MT - Manfred Tecnologia LTDA</Company>
+    <Authors>MT - Manfred Tecnologia LTDA</Authors>
+    <Copyright>Copyright (c) 2026 MT - Manfred Tecnologia LTDA</Copyright>
+    <Description>Cronometro de contagem regressiva para uso em sala de aula.</Description>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+
+    <!-- Alvo de publicacao: exe unico, x64, sem .NET instalado na maquina -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PlatformTarget>x64</PlatformTarget>
+    <SelfContained>true</SelfContained>
+    <!-- PublishSingleFile e demais flags sao passadas no build.ps1 / linha de publish -->
+    <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Sons embutidos no proprio assembly (nao quebram o arquivo unico).
+         alerta.wav: fim do tempo, chamativo e repetido.
+         aviso.wav : aviso antecipado, discreto e tocado uma vez so. -->
+    <EmbeddedResource Include="Assets\alerta.wav" />
+    <EmbeddedResource Include="Assets\aviso.wav" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tambem como recurso do WPF, para a janela exibir o icone em Alt+Tab -->
+    <Resource Include="Assets\cronoaula.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Permite que o projeto de testes exercite os membros internos -->
+    <InternalsVisibleTo Include="CronoAula.Tests" />
+  </ItemGroup>
+
+</Project>
+

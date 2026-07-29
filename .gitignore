@@ -1,0 +1,34 @@
+# Resultado de compilacao
+bin/
+obj/
+
+# Executavel publicado: nao vai para o repositorio.
+# O .exe de cada versao e distribuido pela pagina de Releases do GitHub.
+dist/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# Preferencias do usuario geradas em tempo de execucao
+config.json
+
+# Resultados de teste e cobertura
+TestResults/
+[Cc]overage*/
+*.coverage
+*.trx
+
+# Pacotes NuGet restaurados
+packages/
+*.nupkg
+
+# Diversos do Windows
+Thumbs.db
+desktop.ini
+*.tmp
