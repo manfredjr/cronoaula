@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 
 namespace CronoAula.Core;
 
@@ -25,8 +25,24 @@ namespace CronoAula.Core;
 public sealed class InstanciaUnica : IDisposable
 {
     // Nomes fixos e por sessao (Local), para nao conflitar entre contas.
-    private const string NomeMutex = @"Local\CronoAula.InstanciaUnica";
-    private const string NomeEvento = @"Local\CronoAula.MostrarJanela";
+    private const string NomeMutexPadrao = @"Local\CronoAula.InstanciaUnica";
+    private const string NomeEventoPadrao = @"Local\CronoAula.MostrarJanela";
+
+    private readonly string _nomeMutex;
+    private readonly string _nomeEvento;
+
+    /// <summary>
+    /// O aplicativo usa os nomes padrao. Os testes passam um sufixo proprio
+    /// para nao disputarem a trava com um CronoAula que esteja aberto na
+    /// maquina: sem isso, rodar os testes com o programa aberto falharia por
+    /// motivo alheio ao codigo.
+    /// </summary>
+    public InstanciaUnica(string? sufixo = null)
+    {
+        var s = string.IsNullOrWhiteSpace(sufixo) ? "" : "." + sufixo;
+        _nomeMutex = NomeMutexPadrao + s;
+        _nomeEvento = NomeEventoPadrao + s;
+    }
 
     private Mutex? _mutex;
     private EventWaitHandle? _evento;
@@ -47,7 +63,7 @@ public sealed class InstanciaUnica : IDisposable
     /// </summary>
     public bool TentarAssumir()
     {
-        _mutex = new Mutex(initiallyOwned: true, NomeMutex, out var criouAgora);
+        _mutex = new Mutex(initiallyOwned: true, _nomeMutex, out var criouAgora);
 
         if (!criouAgora)
         {
@@ -65,7 +81,7 @@ public sealed class InstanciaUnica : IDisposable
     /// </summary>
     public void EscutarPedidos()
     {
-        _evento = new EventWaitHandle(false, EventResetMode.AutoReset, NomeEvento);
+        _evento = new EventWaitHandle(false, EventResetMode.AutoReset, _nomeEvento);
         _parar = new CancellationTokenSource();
 
         var evento = _evento;
@@ -98,11 +114,14 @@ public sealed class InstanciaUnica : IDisposable
     /// Pede a copia que ja esta rodando que mostre a janela dela.
     /// Chamado pela segunda copia, logo antes de encerrar.
     /// </summary>
-    public static void PedirParaMostrarJanelaExistente()
+    public static void PedirParaMostrarJanelaExistente(string? sufixo = null)
     {
         try
         {
-            if (EventWaitHandle.TryOpenExisting(NomeEvento, out var evento))
+            var nome = NomeEventoPadrao
+                       + (string.IsNullOrWhiteSpace(sufixo) ? "" : "." + sufixo);
+
+            if (EventWaitHandle.TryOpenExisting(nome, out var evento))
             {
                 using (evento)
                     evento.Set();

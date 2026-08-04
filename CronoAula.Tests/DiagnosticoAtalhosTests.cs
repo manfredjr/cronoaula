@@ -55,11 +55,16 @@ public class DiagnosticoAtalhosTests
     {
         // O diagnostico registra e libera cada combinacao. Se esquecesse de
         // liberar, roubaria as teclas do proprio cronometro depois.
-        DiagnosticoAtalhos.Gerar(new AppSettings());
+        //
+        // A verificacao compara duas passadas seguidas em vez de exigir que
+        // nada apareca como ocupado. Assim o teste continua valido mesmo com o
+        // CronoAula aberto ou com outro programa segurando alguma combinacao:
+        // o que importa e que a primeira passada nao mude o resultado da
+        // segunda.
+        var primeira = DiagnosticoAtalhos.Gerar(new AppSettings());
+        var segunda = DiagnosticoAtalhos.Gerar(new AppSettings());
 
-        var segundaPassada = DiagnosticoAtalhos.Gerar(new AppSettings());
-
-        Assert.DoesNotContain("OCUPADA", segundaPassada);
+        Assert.Equal(primeira, segunda);
     }
 }
 
@@ -97,15 +102,27 @@ public class HotkeyStatusTests
     }
 }
 
+/// <summary>
+/// Cada teste usa um sufixo proprio no nome da trava.
+///
+/// Sem isso, os testes disputariam o mesmo mutex do aplicativo e falhariam
+/// sempre que o CronoAula estivesse aberto na maquina. Aconteceu de verdade
+/// durante o desenvolvimento: quatro testes quebraram por causa de uma janela
+/// esquecida, e nao por causa do codigo.
+/// </summary>
 public class InstanciaUnicaTests
 {
+    private static string NovoSufixo() => "teste-" + Guid.NewGuid().ToString("N")[..8];
+
     [Fact]
     public void PrimeiraCopia_Assume_SegundaNao()
     {
-        using var primeira = new InstanciaUnica();
+        var sufixo = NovoSufixo();
+
+        using var primeira = new InstanciaUnica(sufixo);
         Assert.True(primeira.TentarAssumir());
 
-        using (var segunda = new InstanciaUnica())
+        using (var segunda = new InstanciaUnica(sufixo))
         {
             // Enquanto a primeira estiver viva, a segunda precisa recuar.
             Assert.False(segunda.TentarAssumir());
@@ -113,20 +130,36 @@ public class InstanciaUnicaTests
     }
 
     [Fact]
+    public void TravasComNomesDiferentes_NaoSeAtrapalham()
+    {
+        // Garante que o sufixo realmente isola: sem isso os testes acima
+        // passariam por acidente.
+        using var uma = new InstanciaUnica(NovoSufixo());
+        using var outra = new InstanciaUnica(NovoSufixo());
+
+        Assert.True(uma.TentarAssumir());
+        Assert.True(outra.TentarAssumir());
+    }
+
+    [Fact]
     public void AposLiberar_OutraCopiaConsegueAssumir()
     {
-        var primeira = new InstanciaUnica();
+        var sufixo = NovoSufixo();
+
+        var primeira = new InstanciaUnica(sufixo);
         Assert.True(primeira.TentarAssumir());
         primeira.Dispose();
 
-        using var segunda = new InstanciaUnica();
+        using var segunda = new InstanciaUnica(sufixo);
         Assert.True(segunda.TentarAssumir());
     }
 
     [Fact]
     public void SegundaCopia_AvisaAPrimeira()
     {
-        using var primeira = new InstanciaUnica();
+        var sufixo = NovoSufixo();
+
+        using var primeira = new InstanciaUnica(sufixo);
         Assert.True(primeira.TentarAssumir());
 
         var avisada = new ManualResetEventSlim(false);
@@ -134,7 +167,7 @@ public class InstanciaUnicaTests
         primeira.EscutarPedidos();
 
         // Simula a segunda copia pedindo que a primeira apareca.
-        InstanciaUnica.PedirParaMostrarJanelaExistente();
+        InstanciaUnica.PedirParaMostrarJanelaExistente(sufixo);
 
         Assert.True(avisada.Wait(TimeSpan.FromSeconds(5)),
             "A primeira copia nao recebeu o aviso da segunda.");
@@ -144,7 +177,8 @@ public class InstanciaUnicaTests
     public void PedidoSemNinguemEscutando_NaoLanca()
     {
         // A segunda copia nao pode quebrar se a primeira ja tiver encerrado.
-        var excecao = Record.Exception(InstanciaUnica.PedirParaMostrarJanelaExistente);
+        var excecao = Record.Exception(
+            () => InstanciaUnica.PedirParaMostrarJanelaExistente(NovoSufixo()));
 
         Assert.Null(excecao);
     }
