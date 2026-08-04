@@ -33,16 +33,17 @@ function New-IconeRelogio {
     $margem = 8 * $m
     $d = $Tam - (2 * $margem)
 
-    # Corpo do relogio: azul do aplicativo (#4C6EF5)
-    $azul = [System.Drawing.Color]::FromArgb(255, 76, 110, 245)
-    $azulEscuro = [System.Drawing.Color]::FromArgb(255, 52, 78, 190)
+    # Corpo do relogio no gradiente da marca MT - Manfred Tecnologia:
+    # verde claro (#6AAF21) descendo para verde escuro (#04511F), a 135 graus,
+    # reproduzindo o gradiente oficial do logo.
+    $verdeClaro = [System.Drawing.Color]::FromArgb(255, 106, 175, 33)   # 6AAF21
+    $verdeEscuro = [System.Drawing.Color]::FromArgb(255, 4, 81, 31)     # 04511F
     $branco = [System.Drawing.Color]::FromArgb(255, 255, 255, 255)
 
     $rect = New-Object System.Drawing.RectangleF($margem, $margem, $d, $d)
 
-    # Leve gradiente para nao ficar chapado
     $grad = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
-        $rect, $azul, $azulEscuro, 90.0)
+        $rect, $verdeClaro, $verdeEscuro, 135.0)
     $g.FillEllipse($grad, $rect)
     $grad.Dispose()
 

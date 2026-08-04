@@ -71,43 +71,62 @@ public sealed class GlobalHotkeyManager : IDisposable
         _source?.AddHook(WndProc);
     }
 
+    /// <summary>Ultimo resultado de <see cref="RegisterAll"/>, para consulta.</summary>
+    public IReadOnlyList<HotkeyStatus> UltimoEstado { get; private set; } = Array.Empty<HotkeyStatus>();
+
     /// <summary>
-    /// Tenta registrar os atalhos descritos nas preferencias.
-    /// Devolve a lista de combinacoes que falharam, com o motivo, para que a
-    /// interface possa avisar o usuario de forma clara.
+    /// Tenta registrar os atalhos descritos nas preferencias e devolve a
+    /// situacao de cada um. A interface usa isso para mostrar ao professor quais
+    /// atalhos estao valendo e quais estao disputados por outro programa, em vez
+    /// de apenas falhar em silencio.
     /// </summary>
-    public IReadOnlyList<string> RegisterAll(IDictionary<string, string> hotkeys)
+    public IReadOnlyList<HotkeyStatus> RegisterAll(IDictionary<string, string> hotkeys)
     {
         UnregisterAll();
-        var failures = new List<string>();
+        var estado = new List<HotkeyStatus>();
 
-        foreach (var (actionName, combo) in hotkeys)
+        foreach (var acao in Enum.GetValues<HotkeyAction>())
         {
-            if (!Enum.TryParse<HotkeyAction>(actionName, out var action))
-                continue;
+            hotkeys.TryGetValue(acao.ToString(), out var combo);
+            combo = combo?.Trim() ?? "";
 
             if (string.IsNullOrWhiteSpace(combo))
-                continue; // atalho desativado de proposito
+            {
+                estado.Add(new HotkeyStatus(acao, Describe(acao), "", HotkeySituacao.Desligado, null));
+                continue;
+            }
 
             if (!HotkeyCombo.TryParse(combo, out var mods, out var vk))
             {
-                failures.Add($"{Describe(action)}: combinacao \"{combo}\" nao foi reconhecida.");
+                estado.Add(new HotkeyStatus(acao, Describe(acao), combo,
+                    HotkeySituacao.Invalido, "combinação não reconhecida"));
+                continue;
+            }
+
+            if (_handle == IntPtr.Zero)
+            {
+                estado.Add(new HotkeyStatus(acao, Describe(acao), combo,
+                    HotkeySituacao.Falhou, "a janela ainda não estava pronta"));
                 continue;
             }
 
             var id = _nextId++;
             if (RegisterHotKey(_handle, id, mods | MOD_NOREPEAT, vk))
             {
-                _registered[id] = action;
+                _registered[id] = acao;
+                estado.Add(new HotkeyStatus(acao, Describe(acao), combo, HotkeySituacao.Ativo, null));
             }
             else
             {
                 // Causa mais comum: outro programa ja registrou essa combinacao.
-                failures.Add($"{Describe(action)}: \"{combo}\" ja esta em uso por outro programa.");
+                // Drivers de video costumam tomar Ctrl+Alt com as setas.
+                estado.Add(new HotkeyStatus(acao, Describe(acao), combo,
+                    HotkeySituacao.EmUso, "outro programa já está usando"));
             }
         }
 
-        return failures;
+        UltimoEstado = estado;
+        return estado;
     }
 
     /// <summary>Libera todos os atalhos registrados.</summary>
@@ -141,13 +160,14 @@ public sealed class GlobalHotkeyManager : IDisposable
         return IntPtr.Zero;
     }
 
-    private static string Describe(HotkeyAction action) => action switch
+    internal static string Describe(HotkeyAction action) => action switch
     {
-        HotkeyAction.IniciarPausar => "Iniciar/Pausar",
+        HotkeyAction.IniciarPausar => "Iniciar / Pausar",
         HotkeyAction.Zerar => "Zerar",
         HotkeyAction.AdicionarMinuto => "Somar 1 minuto",
         HotkeyAction.SubtrairMinuto => "Subtrair 1 minuto",
-        HotkeyAction.MostrarEsconder => "Mostrar/Esconder",
+        HotkeyAction.MostrarEsconder => "Mostrar / Esconder",
+        HotkeyAction.TelaCheia => "Tela cheia",
         _ => action.ToString()
     };
 
@@ -161,6 +181,43 @@ public sealed class GlobalHotkeyManager : IDisposable
         _source?.RemoveHook(WndProc);
         _source = null;
     }
+}
+
+/// <summary>Situacao de um atalho global apos a tentativa de registro.</summary>
+public enum HotkeySituacao
+{
+    /// <summary>Registrado e funcionando.</summary>
+    Ativo,
+    /// <summary>Campo vazio nas preferencias: desligado de proposito.</summary>
+    Desligado,
+    /// <summary>Outro programa ja tomou a combinacao.</summary>
+    EmUso,
+    /// <summary>Texto digitado nao forma uma combinacao valida.</summary>
+    Invalido,
+    /// <summary>Falha por outro motivo.</summary>
+    Falhou
+}
+
+/// <summary>Situacao de um atalho, pronta para ser exibida ao usuario.</summary>
+public sealed record HotkeyStatus(
+    HotkeyAction Acao,
+    string Descricao,
+    string Combo,
+    HotkeySituacao Situacao,
+    string? Motivo)
+{
+    /// <summary>Texto curto para a interface.</summary>
+    public string Resumo => Situacao switch
+    {
+        HotkeySituacao.Ativo => "funcionando",
+        HotkeySituacao.Desligado => "desligado",
+        HotkeySituacao.EmUso => "em uso por outro programa",
+        HotkeySituacao.Invalido => "combinação inválida",
+        _ => Motivo ?? "não foi possível registrar"
+    };
+
+    public bool Problema => Situacao is HotkeySituacao.EmUso
+        or HotkeySituacao.Invalido or HotkeySituacao.Falhou;
 }
 
 /// <summary>

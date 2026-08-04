@@ -43,8 +43,19 @@ public partial class MainWindow : Window
     /// </summary>
     private const uint SWP_NOACTIVATE = 0x0010;
 
-    /// <summary>Usado ao posicionar a janela em tela cheia, quando queremos o foco.</summary>
+    /// <summary>Usado ao reposicionar a janela entre monitores.</summary>
     private const uint SWP_SHOWWINDOW = 0x0040;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    /// <summary>Retangulo do Win32, em pixels fisicos.</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT
+    {
+        public int Left, Top, Right, Bottom;
+    }
 
     // ------------------------------------------------------------------
     // Estado da tela cheia
@@ -58,9 +69,11 @@ public partial class MainWindow : Window
 
     public bool EmTelaCheia => _antesDaTelaCheia is not null;
 
-    /// <summary>Esconde os controles da tela cheia depois de um tempo sem uso do mouse.</summary>
-    private readonly DispatcherTimer _ocultarControles =
-        new() { Interval = TimeSpan.FromSeconds(3) };
+    /// <summary>
+    /// Janela que projeta o relogio para a turma. Existe apenas no modo tela
+    /// cheia; fora dele fica null.
+    /// </summary>
+    private DisplayWindow? _exibicao;
 
     // ------------------------------------------------------------------
 
@@ -79,11 +92,17 @@ public partial class MainWindow : Window
     private bool _mouseSobreJanela;
     private bool _encerrando;
 
-    // Cores de cada faixa de alerta.
-    private static readonly Brush CorNormal = new SolidColorBrush(Color.FromRgb(0xED, 0xED, 0xED));
-    private static readonly Brush CorAtencao = new SolidColorBrush(Color.FromRgb(0xFF, 0xD2, 0x4A));
-    private static readonly Brush CorUrgente = new SolidColorBrush(Color.FromRgb(0xFF, 0x9A, 0x3C));
-    private static readonly Brush CorEstourado = new SolidColorBrush(Color.FromRgb(0xFF, 0x4D, 0x4D));
+    /// <summary>
+    /// Cor de cada faixa de alerta, vinda do dicionario da marca. Ler dali, e
+    /// nao fixar valores aqui, mantem um unico lugar de verdade para a paleta.
+    /// </summary>
+    private Brush CorDaFaixa(AlertLevel nivel) => nivel switch
+    {
+        AlertLevel.Atencao => (Brush)FindResource("AlertaAtencao"),
+        AlertLevel.Urgente => (Brush)FindResource("AlertaUrgente"),
+        AlertLevel.Estourado => (Brush)FindResource("AlertaEstourado"),
+        _ => (Brush)FindResource("AlertaNormal")
+    };
 
     public MainWindow()
     {
@@ -96,19 +115,13 @@ public partial class MainWindow : Window
         _tick.Tick += (_, _) => _vm.Tick();
         _reforcoTopo.Tick += (_, _) => ReafirmarTopo();
 
-        _ocultarControles.Tick += (_, _) =>
-        {
-            _ocultarControles.Stop();
-            if (EmTelaCheia)
-                AnimarOpacidade(ControlesTelaCheia, 0.0);
-        };
-
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
         MouseLeftButtonDown += MainWindow_MouseLeftButtonDown;
         MouseWheel += MainWindow_MouseWheel;
-        MouseMove += MainWindow_MouseMove;
-        KeyDown += MainWindow_KeyDown;
+        // Preview (tunelamento) em vez de KeyDown: garante que F11 e Esc cheguem
+        // aqui mesmo quando o foco esta na caixa de tempo personalizado.
+        PreviewKeyDown += MainWindow_KeyDown;
         MouseDoubleClick += MainWindow_MouseDoubleClick;
         MouseEnter += (_, _) => { _mouseSobreJanela = true; AplicarOpacidade(); };
         MouseLeave += (_, _) => { _mouseSobreJanela = false; AplicarOpacidade(); };
@@ -142,30 +155,79 @@ public partial class MainWindow : Window
         // Os atalhos globais so podem ser registrados depois que a janela tem HWND.
         _hotkeys.Attach(this);
         _hotkeys.HotkeyPressed += Hotkeys_Pressed;
-        RegistrarAtalhos();
+        RegistrarAtalhos(avisar: true);
     }
 
-    private void RegistrarAtalhos()
+    /// <summary>
+    /// Situacao atual dos atalhos globais, mostrada nas Preferencias.
+    /// </summary>
+    public IReadOnlyList<HotkeyStatus> EstadoDosAtalhos => _hotkeys.UltimoEstado;
+
+    /// <summary>
+    /// (Re)registra os atalhos globais. Com <paramref name="avisar"/>, exibe uma
+    /// mensagem se alguma combinacao estiver disputada.
+    /// </summary>
+    public void RegistrarAtalhos(bool avisar)
     {
-        var falhas = _hotkeys.RegisterAll(_settings.Hotkeys);
-        if (falhas.Count == 0)
+        var estado = _hotkeys.RegisterAll(_settings.Hotkeys);
+        var problemas = estado.Where(s => s.Problema).ToList();
+
+        if (!avisar || problemas.Count == 0)
             return;
 
-        // Avisa de forma clara em vez de falhar em silencio.
+        var lista = string.Join("\n",
+            problemas.Select(s => $"  {s.Descricao}: {s.Combo} ({s.Resumo})"));
+
         MessageBox.Show(
-            "Outro programa já está usando estes atalhos:\n\n"
-            + string.Join("\n", falhas)
-            + "\n\nOs demais continuam funcionando. Para trocar as combinações, "
-            + "abra as Preferências.",
+            "Estes atalhos não estão valendo:\n\n" + lista
+            + "\n\nOutro programa costuma ser o motivo. Drivers de vídeo, por "
+            + "exemplo, costumam reservar Ctrl+Alt com as setas.\n\n"
+            + "Abra as Preferências para escolher outras combinações. Lá você "
+            + "também vê quais atalhos estão funcionando.",
             "CronoAula - atalhos em uso",
             MessageBoxButton.OK,
             MessageBoxImage.Warning);
+    }
+
+    /// <summary>
+    /// Liga o aviso vindo de uma segunda copia do programa a esta janela.
+    /// Em vez de abrir outra, trazemos esta de volta.
+    /// </summary>
+    public void EscutarSegundaCopia(InstanciaUnica instancia)
+    {
+        instancia.PedidoDeMostrarJanela += (_, _) =>
+        {
+            // O aviso chega em uma thread de vigilancia; mexer em controles
+            // exige voltar para a thread da interface.
+            Dispatcher.Invoke(MostrarJanela);
+        };
+    }
+
+    /// <summary>Traz a janela de volta, esteja ela escondida ou apenas atras de outra.</summary>
+    private void MostrarJanela()
+    {
+        if (!IsVisible)
+        {
+            Show();
+            RestaurarPosicao();
+        }
+
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+
+        Activate();
+        ReafirmarTopo();
     }
 
     private void MainWindow_Closing(object? sender, CancelEventArgs e)
     {
         _encerrando = true;
         SalvarPreferencias();
+
+        // A janela de exibicao nao pode sobreviver ao painel de controle.
+        _exibicao?.Close();
+        _exibicao = null;
+
         _hotkeys.Dispose();
         _sound.Dispose();   // encerra a repeticao do alerta, se estiver tocando
         _tick.Stop();
@@ -309,29 +371,17 @@ public partial class MainWindow : Window
     private void AtualizarMostrador()
     {
         Mostrador.Text = _vm.Display;
-        MostradorCheio.Text = _vm.Display;
         BotaoPrimario.Content = _vm.PrimaryButtonLabel;
-        BotaoPrimarioCheio.Content = _vm.PrimaryButtonLabel;
 
-        var cor = _vm.Alert switch
-        {
-            AlertLevel.Atencao => CorAtencao,
-            AlertLevel.Urgente => CorUrgente,
-            AlertLevel.Estourado => CorEstourado,
-            _ => CorNormal
-        };
-
+        var cor = CorDaFaixa(_vm.Alert);
         Mostrador.Foreground = cor;
-        MostradorCheio.Foreground = cor;
 
-        Estado.Text = _vm.Engine.State switch
-        {
-            TimerState.Paused => "pausado",
-            TimerState.Running when _vm.Engine.IsOvertime => "tempo excedido",
-            TimerState.Running => "",
-            _ when _vm.ArmedPreset is { } p => $"{p} min carregado. Clique de novo para iniciar",
-            _ => "pronto"
-        };
+        var estado = DescreverEstado();
+        Estado.Text = estado;
+
+        // Espelha no relogio projetado para a turma, quando ele existe.
+        _exibicao?.Atualizar(_vm.Display, cor, estado,
+            _vm.Alert == AlertLevel.Estourado, _vm.PrimaryButtonLabel);
 
         DestacarPresetArmado();
 
@@ -341,6 +391,41 @@ public partial class MainWindow : Window
             PararPiscar();
     }
 
+    /// <summary>
+    /// Texto que acompanha a cor do mostrador.
+    ///
+    /// O manual da marca proibe indicar um estado apenas por cor. Como as
+    /// faixas de atencao e urgencia sao tons vizinhos de laranja, e como parte
+    /// da turma pode nao distinguir bem essas cores, cada faixa recebe um nome
+    /// escrito.
+    /// </summary>
+    private string DescreverEstado()
+    {
+        if (_vm.Engine.State == TimerState.Paused)
+            return "pausado";
+
+        if (_vm.Engine.IsOvertime)
+            return "tempo excedido";
+
+        if (_vm.ArmedPreset is { } p)
+            return $"{p} min carregado. Clique de novo para iniciar";
+
+        // A cor do mostrador vale tambem com o cronometro parado, entao o nome
+        // da faixa precisa aparecer nos dois casos. Do contrario o estado
+        // ficaria indicado apenas por cor, o que o manual da marca proibe.
+        var faixa = _vm.Alert switch
+        {
+            AlertLevel.Atencao => "reta final",
+            AlertLevel.Urgente => "último minuto",
+            _ => ""
+        };
+
+        if (faixa.Length > 0)
+            return faixa;
+
+        return _vm.Engine.State == TimerState.Running ? "" : "pronto";
+    }
+
     private void DestacarPresetArmado()
     {
         foreach (var filho in PainelPresets.Children)
@@ -348,9 +433,9 @@ public partial class MainWindow : Window
             if (filho is not Button b || b.Tag is not int minutos)
                 continue;
 
-            b.Background = _vm.ArmedPreset == minutos
-                ? (Brush)FindResource("BotaoAtivo")
-                : (Brush)FindResource("BotaoFundo");
+            var armado = _vm.ArmedPreset == minutos;
+            b.Background = (Brush)FindResource(armado ? "PresetArmado" : "BotaoFundo");
+            b.Foreground = (Brush)FindResource(armado ? "PresetArmadoTexto" : "BotaoTexto");
         }
     }
 
@@ -363,26 +448,20 @@ public partial class MainWindow : Window
         if (_piscar is not null)
             return;
 
-        _piscar = new Storyboard();
-
-        // Anima os dois mostradores: o normal e o de tela cheia.
-        foreach (var alvo in new UIElement[] { Mostrador, MostradorCheio })
+        var animacao = new DoubleAnimation
         {
-            var animacao = new DoubleAnimation
-            {
-                From = 1.0,
-                To = 0.35,
-                Duration = TimeSpan.FromSeconds(0.9),
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever,
-                EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
-            };
+            From = 1.0,
+            To = 0.35,
+            Duration = TimeSpan.FromSeconds(0.9),
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+        };
 
-            Storyboard.SetTarget(animacao, alvo);
-            Storyboard.SetTargetProperty(animacao, new PropertyPath(OpacityProperty));
-            _piscar.Children.Add(animacao);
-        }
-
+        _piscar = new Storyboard();
+        _piscar.Children.Add(animacao);
+        Storyboard.SetTarget(animacao, Mostrador);
+        Storyboard.SetTargetProperty(animacao, new PropertyPath(OpacityProperty));
         _piscar.Begin();
     }
 
@@ -394,7 +473,6 @@ public partial class MainWindow : Window
         _piscar.Stop();
         _piscar = null;
         Mostrador.Opacity = 1.0;
-        MostradorCheio.Opacity = 1.0;
     }
 
     // ------------------------------------------------------------------
@@ -419,35 +497,45 @@ public partial class MainWindow : Window
             return;
 
         var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        var monitor = MonitorHelper.Resolver(idMonitor ?? _settings.FullscreenMonitor, hwnd);
-        if (monitor is null)
+        var monitores = MonitorHelper.Listar();
+        var daExibicao = MonitorHelper.Resolver(idMonitor ?? _settings.FullscreenMonitor, hwnd);
+        if (daExibicao is null)
             return;
-
-        // Guarda o estado para devolver tudo exatamente como estava ao sair.
-        _antesDaTelaCheia = (Left, Top, _settings.Opacity);
 
         if (idMonitor is not null)
             _settings.FullscreenMonitor = idMonitor;
 
-        PainelNormal.Visibility = Visibility.Collapsed;
-        PainelTelaCheia.Visibility = Visibility.Visible;
+        // Guarda a posicao para devolver a janela ao lugar de origem ao sair.
+        _antesDaTelaCheia = (Left, Top, _settings.Opacity);
 
-        // A janela deixa de se dimensionar pelo conteudo para poder ocupar a tela.
-        SizeToContent = SizeToContent.Manual;
+        // Com mais de um monitor, esta janela continua visivel na outra tela e
+        // vira o painel de controle. Com um monitor so, nao ha para onde manda-la
+        // sem cobrir a projecao, entao ela se esconde e a janela de exibicao
+        // ganha seus proprios botoes.
+        var doPainel = MonitorHelper.EscolherMonitorDoPainel(monitores, daExibicao);
 
-        // Em tela cheia a opacidade e sempre total: o objetivo aqui e ser visto
-        // do fundo da sala, nao ficar discreto sobre outra janela.
-        Opacity = 1.0;
+        _exibicao = new DisplayWindow();
+        _exibicao.PedidoDeSaida += (_, _) => SairTelaCheia();
+        _exibicao.PedidoIniciarPausar += (_, _) => _vm.ToggleStartPause();
+        _exibicao.PedidoZerar += (_, _) => _vm.Reset();
+        _exibicao.PedidoMaisUmMinuto += (_, _) => _vm.AddMinutes(1);
+        _exibicao.OcuparMonitor(daExibicao, comControlesProprios: doPainel is null);
 
-        // Posiciona em pixels FISICOS, direto pelo Win32. Evita a conversao de
-        // unidades do WPF, que erra quando os monitores tem escalas diferentes.
-        SetWindowPos(hwnd, HWND_TOPMOST,
-            monitor.Left, monitor.Top, monitor.Width, monitor.Height,
-            SWP_SHOWWINDOW);
+        if (doPainel is null)
+        {
+            Hide();
+        }
+        else
+        {
+            // Painel sempre com opacidade total: aqui o professor precisa
+            // enxergar e clicar, nao ficar discreto.
+            _settings.Opacity = 1.0;
+            AplicarOpacidade();
+            MoverParaMonitor(doPainel);
+            ReafirmarTopo();
+        }
 
-        MostrarControlesTelaCheia();
-        Activate();
-        Focus();
+        AtualizarMostrador();
     }
 
     private void SairTelaCheia()
@@ -455,42 +543,48 @@ public partial class MainWindow : Window
         if (_antesDaTelaCheia is not { } anterior)
             return;
 
-        _ocultarControles.Stop();
         _antesDaTelaCheia = null;
 
-        PainelTelaCheia.Visibility = Visibility.Collapsed;
-        PainelNormal.Visibility = Visibility.Visible;
+        if (_exibicao is not null)
+        {
+            _exibicao.Close();
+            _exibicao = null;
+        }
 
-        // Volta a se dimensionar pelo conteudo e devolve posicao e opacidade.
-        SizeToContent = SizeToContent.WidthAndHeight;
-        Width = double.NaN;
-        Height = double.NaN;
+        if (!IsVisible)
+            Show();
 
-        UpdateLayout();
+        // Devolve posicao e opacidade que a janela tinha antes.
         Left = anterior.Left;
         Top = anterior.Top;
-
         _settings.Opacity = anterior.Opacity;
         AplicarOpacidade();
         ReafirmarTopo();
+        AtualizarMostrador();
     }
 
-    private void MostrarControlesTelaCheia()
+    /// <summary>
+    /// Leva o painel de controle para o canto inferior direito do monitor
+    /// indicado. Trabalha em pixels fisicos, pelo mesmo motivo da janela de
+    /// exibicao: monitores com escalas de DPI diferentes.
+    /// </summary>
+    private void MoverParaMonitor(MonitorInfo monitor)
     {
-        AnimarOpacidade(ControlesTelaCheia, 1.0);
-        _ocultarControles.Stop();
-        _ocultarControles.Start();
-    }
+        UpdateLayout();
 
-    private static void AnimarOpacidade(UIElement alvo, double destino)
-    {
-        var animacao = new DoubleAnimation
-        {
-            To = destino,
-            Duration = TimeSpan.FromMilliseconds(220),
-            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
-        };
-        alvo.BeginAnimation(OpacityProperty, animacao);
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        if (hwnd == IntPtr.Zero)
+            return;
+
+        if (!GetWindowRect(hwnd, out var atual))
+            return;
+
+        var largura = atual.Right - atual.Left;
+        var altura = atual.Bottom - atual.Top;
+        var (left, top) = MonitorHelper.CantoInferiorDireito(monitor, largura, altura);
+
+        SetWindowPos(hwnd, HWND_TOPMOST, left, top, 0, 0,
+            SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
     }
 
     /// <summary>
@@ -581,23 +675,11 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void MainWindow_MouseMove(object sender, MouseEventArgs e)
-    {
-        // Em tela cheia os controles ficam escondidos e reaparecem ao menor
-        // movimento do mouse, sumindo sozinhos alguns segundos depois.
-        if (EmTelaCheia)
-            MostrarControlesTelaCheia();
-    }
-
     private void MainWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         // Encostar na janela ja silencia o alerta de fim: se o professor foi ate
         // o computador, ele evidentemente percebeu que o tempo acabou.
         _vm.SilenciarAlerta();
-
-        // Em tela cheia a janela nao se arrasta: ela ocupa o monitor inteiro.
-        if (EmTelaCheia)
-            return;
 
         // Arrastavel por qualquer ponto, exceto sobre controles interativos.
         if (e.OriginalSource is DependencyObject origem && EstaSobreControle(origem))
@@ -749,7 +831,7 @@ public partial class MainWindow : Window
         _vm.ApplySettings();
         ConstruirPresets();
         AplicarOpacidade();
-        RegistrarAtalhos();
+        RegistrarAtalhos(avisar: true);
         AtualizarMostrador();
         _settings.Save();
     }
@@ -769,7 +851,6 @@ public partial class MainWindow : Window
             AlternarTelaCheia();
     }
 
-    private void BotaoSairTelaCheia_Click(object sender, RoutedEventArgs e) => SairTelaCheia();
 
     private void MenuSair_Click(object sender, RoutedEventArgs e) => Close();
 

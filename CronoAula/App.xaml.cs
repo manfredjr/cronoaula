@@ -7,6 +7,8 @@ namespace CronoAula;
 
 public partial class App : Application
 {
+    private readonly InstanciaUnica _instancia = new();
+
     /// <summary>
     /// Rede de protecao contra erros nao tratados.
     ///
@@ -58,9 +60,44 @@ public partial class App : Application
                 RegistrarErro(ex);
         };
 
+        // "CronoAula.exe --atalhos" testa cada combinacao e informa quais estao
+        // livres e quais outro programa ja tomou, sem abrir o cronometro.
+        if (e.Args.Any(a => a.Equals("--atalhos", StringComparison.OrdinalIgnoreCase)
+                            || a.Equals("/atalhos", StringComparison.OrdinalIgnoreCase)))
+        {
+            MessageBox.Show(
+                DiagnosticoAtalhos.Gerar(AppSettings.Load()),
+                "CronoAula - diagnóstico dos atalhos",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            Shutdown();
+            return;
+        }
+
+        // Uma copia por vez. Se o professor escondeu a janela com Ctrl+Alt+H e
+        // abriu o programa de novo, a segunda copia nao conseguiria registrar
+        // atalho nenhum, e as teclas continuariam indo para a janela escondida.
+        // Em vez de abrir outra, trazemos de volta a que ja existe.
+        if (!_instancia.TentarAssumir())
+        {
+            InstanciaUnica.PedirParaMostrarJanelaExistente();
+            Shutdown();
+            return;
+        }
+
         // A janela principal e criada aqui, e nao por StartupUri no App.xaml,
-        // para que o modo "--sobre" acima possa evitar abri-la.
-        new MainWindow().Show();
+        // para que os modos acima possam evitar abri-la.
+        _instancia.EscutarPedidos();
+
+        var janela = new MainWindow();
+        janela.EscutarSegundaCopia(_instancia);
+        janela.Show();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _instancia.Dispose();
+        base.OnExit(e);
     }
 
     private static string CaminhoDoLog =>

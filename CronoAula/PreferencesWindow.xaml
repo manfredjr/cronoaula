@@ -7,44 +7,44 @@
         Width="430"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Background="#FF1F1F23"
-        Foreground="#FFEDEDED"
+        Background="{StaticResource FundoDialogo}"
+        Foreground="{StaticResource TextoPrincipal}"
         FontFamily="Segoe UI"
         FontSize="12"
         ShowInTaskbar="False">
 
     <Window.Resources>
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FFEDEDED"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#FFEDEDED"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="Margin" Value="0,6,0,0"/>
         </Style>
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#FF2A2A30"/>
-            <Setter Property="Foreground" Value="#FFEDEDED"/>
-            <Setter Property="BorderBrush" Value="#33FFFFFF"/>
-            <Setter Property="CaretBrush" Value="#FFEDEDED"/>
+            <Setter Property="Background" Value="{StaticResource SuperficieCampo}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BordaJanela}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="Padding" Value="4,3"/>
             <Setter Property="Margin" Value="0,2"/>
         </Style>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#FF2E2E33"/>
-            <Setter Property="Foreground" Value="#FFEDEDED"/>
+            <Setter Property="Background" Value="{StaticResource BotaoFundo}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="14,6"/>
             <Setter Property="Margin" Value="4,0,0,0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style x:Key="Secao" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FF8AA4FF"/>
+            <Setter Property="Foreground" Value="{StaticResource VerdeClaro}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,14,0,4"/>
         </Style>
         <Style x:Key="Dica" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FF9A9AA0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoSecundario}"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
@@ -154,11 +154,51 @@
         <TextBlock Style="{StaticResource Dica}"
                    Text="Escreva no formato Ctrl+Alt+S, Ctrl+Shift+F9 ou Ctrl+Alt+Up. Deixe o campo vazio para desligar um atalho."/>
 
+        <!-- Situacao real de cada atalho no momento. Sem isto, o professor so
+             descobre que um atalho nao vale quando aperta e nada acontece. -->
+        <Border Background="{StaticResource SuperficieCampo}" CornerRadius="6" Padding="10,8" Margin="0,10,0,0">
+            <StackPanel>
+                <TextBlock Text="Situação agora" Foreground="{StaticResource TextoSecundario}"
+                           FontWeight="SemiBold" FontSize="11" Margin="0,0,0,6"/>
+                <ItemsControl x:Name="ListaEstadoAtalhos">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="132"/>
+                                    <ColumnDefinition Width="118"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Descricao}"
+                                           Foreground="{StaticResource TextoPrincipal}" FontSize="11"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Combo}"
+                                           Foreground="{StaticResource TextoSecundario}" FontSize="11"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Resumo}" FontSize="11">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{StaticResource VerdeClaro}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Problema}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource AlertaAtencao}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button Content="Aplicar e testar agora" Click="ReaplicarAtalhos_Click"
+                        HorizontalAlignment="Left" Margin="0,8,0,0" Padding="10,4"/>
+            </StackPanel>
+        </Border>
+
         <!-- Rodape -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
             <Button Content="Restaurar padrões" Click="Restaurar_Click"/>
             <Button Content="Cancelar" Click="Cancelar_Click"/>
-            <Button Content="Salvar" Click="Salvar_Click" Background="#FF4C6EF5" FontWeight="SemiBold"/>
+            <Button Content="Salvar" Click="Salvar_Click" Background="{StaticResource BotaoPrincipalFundo}" FontWeight="SemiBold"/>
         </StackPanel>
 
     </StackPanel>

@@ -8,44 +8,44 @@
         MaxHeight="720"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Background="#FF1F1F23"
-        Foreground="#FFEDEDED"
+        Background="{StaticResource FundoDialogo}"
+        Foreground="{StaticResource TextoPrincipal}"
         FontFamily="Segoe UI"
         FontSize="12.5"
         ShowInTaskbar="False">
 
     <Window.Resources>
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FFEDEDED"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         <Style x:Key="Corpo" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FFC9C9CF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="LineHeight" Value="19"/>
             <Setter Property="Margin" Value="0,0,0,11"/>
         </Style>
         <Style x:Key="Secao" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FF8AA4FF"/>
+            <Setter Property="Foreground" Value="{StaticResource VerdeClaro}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="0,4,0,7"/>
         </Style>
         <Style x:Key="Item" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FFC9C9CF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="LineHeight" Value="19"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
         <Style x:Key="Lema" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FF8AA4FF"/>
+            <Setter Property="Foreground" Value="{StaticResource VerdeClaro}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="FontStyle" Value="Italic"/>
             <Setter Property="Margin" Value="0,4,0,0"/>
         </Style>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#FF4C6EF5"/>
-            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource BotaoPrincipalFundo}"/>
+            <Setter Property="Foreground" Value="{StaticResource BotaoPrincipalTexto}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="18,6"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -71,12 +71,12 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="CronoAula" FontSize="21" FontWeight="Bold"/>
                     <TextBlock Text="Cronômetro de contagem regressiva para sala de aula"
-                               Foreground="#FF9A9AA0" FontSize="12" Margin="0,2,0,0"/>
+                               Foreground="{StaticResource TextoSecundario}" FontSize="12" Margin="0,2,0,0"/>
                     <TextBlock x:Name="LblVersao" Text="Versão 1.0.0"
-                               Foreground="#FF6E6E76" FontSize="11" Margin="0,3,0,0"/>
+                               Foreground="{StaticResource TextoTerciario}" FontSize="11" Margin="0,3,0,0"/>
                 </StackPanel>
             </StackPanel>
-            <Border Height="1" Background="#22FFFFFF" Margin="0,0,0,12"/>
+            <Border Height="1" Background="{StaticResource Separador}" Margin="0,0,0,12"/>
         </StackPanel>
 
         <!-- Corpo rolavel -->
@@ -117,31 +117,31 @@
 
                 <StackPanel Margin="10,0,0,11">
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" estabelecer objetivos claros para cada etapa;"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" manter o ritmo e a organização da aula;"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" equilibrar explicação, prática e correção;"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" informar aos alunos quanto tempo ainda têm;"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" evitar que uma atividade comprometa as etapas seguintes;"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" criar períodos de concentração e desenvolvimento autônomo;"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" conduzir exercícios, avaliações, apresentações e intervalos."/>
                     </TextBlock>
                 </StackPanel>
@@ -164,27 +164,27 @@
 
                 <StackPanel Margin="10,0,0,11">
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" Permanece sobre qualquer programa, inclusive apresentações e ambientes de programação."/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" Tem transparência ajustável, para acompanhar o tempo sem esconder o conteúdo."/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" Pode ser redimensionado e posicionado em qualquer canto da tela."/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" Exibe o tempo em tela cheia quando ele precisa ser projetado para toda a turma."/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" É controlado por atalhos de teclado, sem tirar o foco da apresentação ou do código."/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource Item}">
-                        <Run Text="-" Foreground="#FF4C6EF5" FontWeight="Bold"/>
+                        <Run Text="-" Foreground="{StaticResource VerdeClaro}" FontWeight="Bold"/>
                         <Run Text=" Funciona sem internet, sem telemetria e sem permissões administrativas."/>
                     </TextBlock>
                 </StackPanel>
@@ -203,12 +203,12 @@
 
         <!-- Rodape -->
         <StackPanel Grid.Row="2">
-            <Border Height="1" Background="#22FFFFFF" Margin="0,14,0,12"/>
+            <Border Height="1" Background="{StaticResource Separador}" Margin="0,14,0,12"/>
             <Grid>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="LblCopyright"
                                Text="© 2026 MT - Manfred Tecnologia LTDA"
-                               Foreground="#FF9A9AA0" FontSize="11"/>
+                               Foreground="{StaticResource TextoSecundario}" FontSize="11"/>
                 </StackPanel>
                 <Button Content="Fechar" Click="Fechar_Click" HorizontalAlignment="Right"/>
             </Grid>

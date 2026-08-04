@@ -127,4 +127,42 @@ public static class MonitorHelper
 
         return DoHandle(hwnd);
     }
+
+    /// <summary>
+    /// Escolhe em qual monitor fica o painel de controle, dado o monitor que
+    /// esta exibindo o relogio para a turma.
+    ///
+    /// A regra e simples: o painel vai para qualquer tela que nao seja a da
+    /// projecao, preferindo a principal, que e onde o professor trabalha.
+    /// Devolve null quando so existe um monitor: nesse caso nao ha para onde
+    /// mandar o painel sem cobrir a projecao.
+    /// </summary>
+    public static MonitorInfo? EscolherMonitorDoPainel(
+        IReadOnlyList<MonitorInfo> monitores, MonitorInfo daExibicao)
+    {
+        var candidatos = monitores.Where(m => m.Id != daExibicao.Id).ToList();
+
+        if (candidatos.Count == 0)
+            return null;
+
+        return candidatos.FirstOrDefault(m => m.Principal) ?? candidatos[0];
+    }
+
+    /// <summary>
+    /// Canto inferior direito do monitor, em pixels fisicos, respeitando a
+    /// margem pedida e o tamanho da janela.
+    /// </summary>
+    public static (int Left, int Top) CantoInferiorDireito(
+        MonitorInfo monitor, int larguraJanela, int alturaJanela, int margem = 20)
+    {
+        var left = monitor.Left + monitor.Width - larguraJanela - margem;
+        var top = monitor.Top + monitor.Height - alturaJanela - margem;
+
+        // Nunca deixa a janela comecar fora do monitor, mesmo que ela seja
+        // maior que a tela (projetor de baixa resolucao, por exemplo).
+        if (left < monitor.Left) left = monitor.Left;
+        if (top < monitor.Top) top = monitor.Top;
+
+        return (left, top);
+    }
 }

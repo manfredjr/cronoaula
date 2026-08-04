@@ -1,8 +1,13 @@
-﻿<Application x:Class="CronoAula.App"
+<Application x:Class="CronoAula.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CronoAula">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Cores da identidade MT - Manfred Tecnologia -->
+                <ResourceDictionary Source="Marca.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

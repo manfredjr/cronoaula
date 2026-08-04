@@ -13,19 +13,12 @@
         WindowStartupLocation="Manual">
 
     <Window.Resources>
-        <!-- Paleta -->
-        <SolidColorBrush x:Key="FundoJanela"   Color="#F21C1C1E"/>
-        <SolidColorBrush x:Key="BordaJanela"   Color="#33FFFFFF"/>
-        <SolidColorBrush x:Key="TextoNormal"   Color="#FFEDEDED"/>
-        <SolidColorBrush x:Key="TextoSecund"   Color="#FF9A9AA0"/>
-        <SolidColorBrush x:Key="BotaoFundo"    Color="#FF2E2E33"/>
-        <SolidColorBrush x:Key="BotaoHover"    Color="#FF3E3E45"/>
-        <SolidColorBrush x:Key="BotaoAtivo"    Color="#FF4C6EF5"/>
+        <!-- As cores vem do dicionario Marca.xaml, carregado no App.xaml -->
 
         <!-- Botao base, visual plano e discreto -->
         <Style x:Key="BotaoBase" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource BotaoFundo}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextoNormal}"/>
+            <Setter Property="Foreground" Value="{StaticResource BotaoTexto}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
@@ -64,19 +57,21 @@
             <Setter Property="Padding" Value="6,4"/>
         </Style>
 
-        <!-- Botao principal (Iniciar / Pausar / Continuar) -->
+        <!-- Botao principal (Iniciar / Pausar / Continuar).
+             Verde claro com texto verde profundo: par aprovado pelo manual. -->
         <Style x:Key="BotaoPrincipal" TargetType="Button" BasedOn="{StaticResource BotaoBase}">
-            <Setter Property="Background" Value="{StaticResource BotaoAtivo}"/>
+            <Setter Property="Background" Value="{StaticResource BotaoPrincipalFundo}"/>
+            <Setter Property="Foreground" Value="{StaticResource BotaoPrincipalTexto}"/>
             <Setter Property="MinWidth" Value="76"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
         <Style x:Key="CaixaTexto" TargetType="TextBox">
-            <Setter Property="Background" Value="#FF232327"/>
-            <Setter Property="Foreground" Value="{StaticResource TextoNormal}"/>
-            <Setter Property="BorderBrush" Value="#33FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource SuperficieCampo}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextoPrincipal}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BordaJanela}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CaretBrush" Value="{StaticResource TextoNormal}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource TextoPrincipal}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="Padding" Value="5,3"/>
@@ -124,7 +119,11 @@
 
     <Grid>
         <!-- ============================================================
-             MODO NORMAL
+             Esta e a janela de comando. No modo tela cheia ela continua
+             visivel na tela do professor, funcionando como painel de
+             controle, enquanto a DisplayWindow projeta o relogio para a
+             turma no outro monitor.
+
              Os tres tamanhos alteram apenas a fonte do mostrador. Os botoes
              mantem sempre as mesmas medidas: eles sao alvo de clique, e um
              alvo nao precisa crescer junto com os digitos.
@@ -143,16 +142,19 @@
                            FontFamily="Consolas"
                            FontSize="46"
                            FontWeight="Bold"
-                           Foreground="{StaticResource TextoNormal}"
+                           Foreground="{StaticResource AlertaNormal}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,2"/>
 
-                <!-- Linha de estado (pausado, estourado, etc.) -->
+                <!-- Linha de estado. Alem de informar pausa e tempo excedido,
+                     ela nomeia a faixa de alerta (reta final, ultimo minuto).
+                     O manual da marca exige que nenhum estado seja indicado
+                     apenas por cor. -->
                 <TextBlock x:Name="Estado"
                            Text=""
                            FontFamily="Segoe UI"
-                           FontSize="10"
-                           Foreground="{StaticResource TextoSecund}"
+                           FontSize="10.5"
+                           Foreground="{StaticResource TextoSecundario}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,7"/>
 
@@ -183,41 +185,5 @@
             </StackPanel>
         </Border>
 
-        <!-- ============================================================
-             MODO TELA CHEIA
-             Para provas e atividades longas projetadas para a turma.
-             Fundo preto solido: no projetor, contraste vale mais que
-             discricao. O Viewbox faz os digitos ocuparem a tela inteira
-             sem nenhum calculo de fonte.
-             ============================================================ -->
-        <Grid x:Name="PainelTelaCheia" Background="#FF000000" Visibility="Collapsed">
-            <Viewbox Stretch="Uniform" Margin="60,40,60,40">
-                <TextBlock x:Name="MostradorCheio"
-                           Text="00:00"
-                           FontFamily="Consolas"
-                           FontWeight="Bold"
-                           Foreground="{StaticResource TextoNormal}"
-                           TextAlignment="Center"/>
-            </Viewbox>
-
-            <!-- Controles discretos: aparecem ao mover o mouse e somem sozinhos -->
-            <Border x:Name="ControlesTelaCheia"
-                    VerticalAlignment="Bottom"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,34"
-                    Background="#CC1C1C1E"
-                    CornerRadius="10"
-                    Padding="10,8"
-                    Opacity="0">
-                <StackPanel Orientation="Horizontal">
-                    <Button x:Name="BotaoPrimarioCheio" Style="{StaticResource BotaoPrincipal}"
-                            Content="Iniciar" Click="BotaoPrimario_Click"/>
-                    <Button Style="{StaticResource BotaoBase}" Content="Zerar" Click="BotaoZerar_Click"/>
-                    <Button Style="{StaticResource BotaoBase}" Content="+1 min" Click="BotaoMaisUm_Click"/>
-                    <Button Style="{StaticResource BotaoBase}" Content="Sair da tela cheia (Esc)"
-                            Click="BotaoSairTelaCheia_Click"/>
-                </StackPanel>
-            </Border>
-        </Grid>
     </Grid>
 </Window>

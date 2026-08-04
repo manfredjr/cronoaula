@@ -169,12 +169,17 @@ Se preferir que ele pare em `00:00`, desligue em **Preferências**, seção
 As cores mudam sozinhas, sem depender do som. Isso importa numa sala barulhenta
 ou quando você prefere não incomodar a turma:
 
-| Cor | Quando |
-|---|---|
-| Branco | Tempo normal |
-| Amarelo | Últimos 20% do tempo, ou 2 minutos, o que for menor |
-| Laranja | Último minuto |
-| Vermelho piscando | Zero e tempo excedido |
+| Cor | Texto na tela | Quando |
+|---|---|---|
+| Areia | (nenhum) | Tempo normal |
+| Âmbar | reta final | Últimos 20% do tempo, ou 2 minutos, o que for menor |
+| Laranja | último minuto | Último minuto |
+| Vermelho piscando | tempo excedido | Zero e tempo excedido |
+
+Cada faixa aparece com o nome escrito, não apenas pela cor. O manual da marca
+exige isso, e há um motivo prático: da última fileira da sala, a diferença entre
+âmbar e laranja não é confiável, e parte das pessoas não distingue bem esses
+tons.
 
 O "20% ou 2 minutos, o que for menor" evita que uma aula de 50 minutos comece a
 alertar faltando 10 minutos. Na prática: atividades curtas avisam
@@ -556,6 +561,21 @@ comprimido ou como DIB clássico. O PNG é bem menor, mas com ele o Smart App
 Control do Windows 11 passou a bloquear o binário. Todas as resoluções usam DIB;
 o ícone fica com 372 KB em vez de 8 KB, o que é irrelevante perto dos 63 MB do
 executável.
+
+**Identidade visual.** As cores seguem o manual da MT - Manfred Tecnologia e
+ficam todas em [Marca.xaml](CronoAula/Marca.xaml), um único lugar. O fundo é o
+verde profundo `#022F10`, os dígitos em areia `#F5F7F2` e o botão principal em
+verde claro `#6AAF21` com texto verde profundo, par que o manual aprova em 5,48
+de contraste. Texto branco sobre o verde claro daria 2,70 e é proibido.
+
+Uma adaptação foi necessária e está documentada no próprio dicionário: o âmbar
+e o vinho do manual são definidos para fundo claro e rendem 2,73 e 1,87 sobre o
+verde profundo, abaixo do mínimo de 3,0 da própria tabela. A escala de alerta
+usa versões clareadas dos mesmos tons, todas medidas acima de 4,5.
+
+Os testes recalculam esses contrastes a partir das cores que estão de fato no
+dicionário, então uma troca que quebre a legibilidade falha antes de chegar à
+sala de aula.
 
 **Consumo de CPU.** O relógio da interface só roda enquanto há contagem. Parado,
 o consumo medido foi de 15 ms em 5 segundos, cerca de 0,3% de um núcleo.

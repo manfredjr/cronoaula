@@ -45,7 +45,56 @@ public partial class PreferencesWindow : Window
         CampoAtalhoMenos.Text = Atalho(HotkeyAction.SubtrairMinuto);
         CampoAtalhoMostrar.Text = Atalho(HotkeyAction.MostrarEsconder);
         CampoAtalhoTelaCheia.Text = Atalho(HotkeyAction.TelaCheia);
+
+        AtualizarEstadoAtalhos();
     }
+
+    /// <summary>Mostra quais atalhos estao valendo neste momento.</summary>
+    private void AtualizarEstadoAtalhos()
+    {
+        if (Owner is MainWindow principal)
+            ListaEstadoAtalhos.ItemsSource = principal.EstadoDosAtalhos;
+    }
+
+    /// <summary>
+    /// Grava os atalhos digitados e tenta registra-los na hora, para o professor
+    /// ver o resultado sem precisar fechar a janela.
+    /// </summary>
+    private void ReaplicarAtalhos_Click(object sender, RoutedEventArgs e)
+    {
+        if (Owner is not MainWindow principal)
+            return;
+
+        var atalhos = LerAtalhosDosCampos();
+
+        foreach (var (_, combo) in atalhos)
+        {
+            if (string.IsNullOrWhiteSpace(combo))
+                continue;
+
+            if (!HotkeyCombo.TryParse(combo, out _, out _))
+            {
+                Avisar($"Não reconheci o atalho \"{combo}\".\n\n"
+                       + "Comece por Ctrl, Alt, Shift ou Win e termine com uma tecla, "
+                       + "como em Ctrl+Alt+S, Ctrl+Shift+F9 ou Ctrl+Alt+Up.");
+                return;
+            }
+        }
+
+        _settings.Hotkeys = atalhos;
+        principal.RegistrarAtalhos(avisar: false);
+        AtualizarEstadoAtalhos();
+    }
+
+    private Dictionary<string, string> LerAtalhosDosCampos() => new()
+    {
+        [nameof(HotkeyAction.IniciarPausar)] = CampoAtalhoIniciar.Text.Trim(),
+        [nameof(HotkeyAction.Zerar)] = CampoAtalhoZerar.Text.Trim(),
+        [nameof(HotkeyAction.AdicionarMinuto)] = CampoAtalhoMais.Text.Trim(),
+        [nameof(HotkeyAction.SubtrairMinuto)] = CampoAtalhoMenos.Text.Trim(),
+        [nameof(HotkeyAction.MostrarEsconder)] = CampoAtalhoMostrar.Text.Trim(),
+        [nameof(HotkeyAction.TelaCheia)] = CampoAtalhoTelaCheia.Text.Trim()
+    };
 
     private string Atalho(HotkeyAction acao) =>
         _settings.Hotkeys.TryGetValue(acao.ToString(), out var v) ? v : "";
@@ -150,15 +199,7 @@ public partial class PreferencesWindow : Window
             return;
         }
 
-        var atalhos = new Dictionary<string, string>
-        {
-            [nameof(HotkeyAction.IniciarPausar)] = CampoAtalhoIniciar.Text.Trim(),
-            [nameof(HotkeyAction.Zerar)] = CampoAtalhoZerar.Text.Trim(),
-            [nameof(HotkeyAction.AdicionarMinuto)] = CampoAtalhoMais.Text.Trim(),
-            [nameof(HotkeyAction.SubtrairMinuto)] = CampoAtalhoMenos.Text.Trim(),
-            [nameof(HotkeyAction.MostrarEsconder)] = CampoAtalhoMostrar.Text.Trim(),
-            [nameof(HotkeyAction.TelaCheia)] = CampoAtalhoTelaCheia.Text.Trim()
-        };
+        var atalhos = LerAtalhosDosCampos();
 
         // Campo vazio significa "atalho desativado"; o resto precisa ser valido.
         foreach (var (acao, combo) in atalhos)

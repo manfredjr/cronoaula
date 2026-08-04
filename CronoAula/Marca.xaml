@@ -1,0 +1,107 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ==================================================================
+         Identidade visual MT - Manfred Tecnologia
+
+         Fonte: C:\COWORK\MANFRED TECNOLOGIA\LOGOS\identidade_visual_manfred_tecnologia.md
+         Todas as cores abaixo saem do manual, com uma excecao documentada
+         mais adiante (a escala de alerta).
+         ================================================================== -->
+
+    <!-- Primarias -->
+    <Color x:Key="CorVerdeClaro">#FF6AAF21</Color>
+    <Color x:Key="CorVerdeMedio">#FF398024</Color>
+    <Color x:Key="CorVerdeEscuro">#FF04511F</Color>
+    <Color x:Key="CorVerdeProfundo">#FF022F10</Color>
+
+    <!-- Neutros -->
+    <Color x:Key="CorGrafite">#FF1E2422</Color>
+    <Color x:Key="CorCinzaClaro">#FFE8EDE6</Color>
+    <Color x:Key="CorAreia">#FFF5F7F2</Color>
+    <Color x:Key="CorBranco">#FFFFFFFF</Color>
+
+    <SolidColorBrush x:Key="VerdeClaro"    Color="{StaticResource CorVerdeClaro}"/>
+    <SolidColorBrush x:Key="VerdeMedio"    Color="{StaticResource CorVerdeMedio}"/>
+    <SolidColorBrush x:Key="VerdeEscuro"   Color="{StaticResource CorVerdeEscuro}"/>
+    <SolidColorBrush x:Key="VerdeProfundo" Color="{StaticResource CorVerdeProfundo}"/>
+    <SolidColorBrush x:Key="Areia"         Color="{StaticResource CorAreia}"/>
+    <SolidColorBrush x:Key="Branco"        Color="{StaticResource CorBranco}"/>
+
+    <!-- ==================================================================
+         Fundo: grafite, o neutro escuro do manual.
+
+         A primeira versao usava verde profundo no fundo inteiro. Ficou verde
+         demais e, pior, custou contraste: sobre grafite todos os alertas
+         rendem mais (digitos 14,63 contra 13,74; ultimo minuto 5,27 contra
+         4,95). O proprio manual pede que o verde seja acento, nao fundo:
+         "cerca de 60 por cento da area em neutro claro (...) o verde claro e
+         acento, nao fundo de pagina".
+
+         Grafite tambem e a escolha do manual no lugar do preto puro, que
+         "fica duro ao lado do verde".
+
+         O verde aparece onde importa: botao principal, preset carregado,
+         titulos de secao e o icone.
+         ================================================================== -->
+    <SolidColorBrush x:Key="FundoJanela"  Color="#F21E2422"/>
+    <SolidColorBrush x:Key="FundoDialogo" Color="#FF1E2422"/>
+    <SolidColorBrush x:Key="BordaJanela"  Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="Separador"    Color="#22FFFFFF"/>
+
+    <!-- Campo de texto: um degrau abaixo do fundo, para parecer rebaixado. -->
+    <SolidColorBrush x:Key="SuperficieCampo" Color="#FF242A27"/>
+
+    <!-- Barra flutuante de controles na tela cheia. -->
+    <SolidColorBrush x:Key="BarraFlutuante" Color="#E6262E2B"/>
+
+    <!-- Texto sobre fundo escuro.
+         O cinza medio do manual (#6B736E) e definido para fundo claro; sobre o
+         grafite ele nao alcanca o minimo de 4,5 para texto pequeno. Usamos uma
+         versao clareada do mesmo cinza, medida em 5,93. -->
+    <SolidColorBrush x:Key="TextoPrincipal"  Color="{StaticResource CorAreia}"/>
+    <SolidColorBrush x:Key="TextoSecundario" Color="#FF98A199"/>
+    <SolidColorBrush x:Key="TextoTerciario"  Color="#FF7C857E"/>
+
+    <!-- Botoes.
+         Principal: verde claro com texto verde profundo, par aprovado pelo
+         manual em 5,48. E o acento da marca, no lugar onde antes havia azul.
+         Texto branco sobre verde claro daria 2,70 e e proibido.
+
+         Secundario: neutro da familia grafite, nao verde. Se todo botao fosse
+         verde, o botao principal deixaria de se destacar e o professor perderia
+         o alvo mais importante da janela. -->
+    <SolidColorBrush x:Key="BotaoPrincipalFundo" Color="{StaticResource CorVerdeClaro}"/>
+    <SolidColorBrush x:Key="BotaoPrincipalTexto" Color="{StaticResource CorVerdeProfundo}"/>
+    <SolidColorBrush x:Key="BotaoPrincipalHover" Color="#FF7CC42B"/>
+    <SolidColorBrush x:Key="BotaoFundo"          Color="#FF333B37"/>
+    <SolidColorBrush x:Key="BotaoHover"          Color="#FF3E4741"/>
+    <SolidColorBrush x:Key="BotaoTexto"          Color="{StaticResource CorAreia}"/>
+
+    <!-- Preset carregado, aguardando o segundo clique. Verde medio com branco,
+         par aprovado pelo manual em 4,90. -->
+    <SolidColorBrush x:Key="PresetArmado"      Color="{StaticResource CorVerdeMedio}"/>
+    <SolidColorBrush x:Key="PresetArmadoTexto" Color="{StaticResource CorBranco}"/>
+
+    <!-- ==================================================================
+         Escala de alerta do cronometro
+
+         Unico ponto em que nos afastamos dos valores literais do manual, e
+         com motivo medido: o ambar (#9A5B00) e o vinho (#9B2226) sao definidos
+         para fundo claro. Sobre o grafite eles ficam abaixo do minimo de 3,0
+         da propria tabela do manual. Usamos versoes clareadas dos mesmos tons,
+         medidas sobre o fundo grafite:
+
+           atencao  #E09B2D  6,69
+           urgente  #E8752D  5,27
+           estouro  #E86A6F  5,05
+
+         O manual tambem exige que nenhum estado seja indicado apenas por cor.
+         Por isso cada faixa vem acompanhada de um rotulo em texto na janela.
+         ================================================================== -->
+    <SolidColorBrush x:Key="AlertaNormal"    Color="{StaticResource CorAreia}"/>
+    <SolidColorBrush x:Key="AlertaAtencao"   Color="#FFE09B2D"/>
+    <SolidColorBrush x:Key="AlertaUrgente"   Color="#FFE8752D"/>
+    <SolidColorBrush x:Key="AlertaEstourado" Color="#FFE86A6F"/>
+
+</ResourceDictionary>
