@@ -11,30 +11,34 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cronoaula.manfred.com.br/">
 <style>
+  /* Identidade MT - Manfred Tecnologia.
+     Claro: areia de fundo, grafite no texto, verde escuro no acento.
+     Escuro: grafite de fundo, areia no texto, verde claro no acento.
+     Os pares seguem os contrastes aprovados no manual da marca. */
   :root {
-    --bg: #f7f8fa;
+    --bg: #f5f7f2;
     --surface: #ffffff;
-    --border: #e2e5ea;
-    --ink: #16181d;
-    --ink-soft: #545a66;
-    --accent: #1f6feb;
+    --border: #e8ede6;
+    --ink: #1e2422;
+    --ink-soft: #6b736e;
+    --accent: #04511f;
     --accent-ink: #ffffff;
-    --warn-bg: #fff8e6;
-    --warn-border: #f0d089;
-    --warn-ink: #6b4e00;
+    --warn-bg: #fdf6e9;
+    --warn-border: #e0c48a;
+    --warn-ink: #9a5b00;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0f1116;
-      --surface: #171a21;
-      --border: #272b34;
-      --ink: #e8eaee;
-      --ink-soft: #a0a7b4;
-      --accent: #4d8ef7;
-      --accent-ink: #0b0d11;
-      --warn-bg: #2a2314;
-      --warn-border: #55471f;
-      --warn-ink: #e8d194;
+      --bg: #151917;
+      --surface: #1e2422;
+      --border: #333b37;
+      --ink: #f5f7f2;
+      --ink-soft: #98a199;
+      --accent: #6aaf21;
+      --accent-ink: #022f10;
+      --warn-bg: #2a2214;
+      --warn-border: #55461f;
+      --warn-ink: #e09b2d;
     }
   }
   * { box-sizing: border-box; }
@@ -54,9 +58,11 @@
   .lede { font-size: 1.18rem; color: var(--ink-soft); margin: 0 auto 34px; max-width: 33em; }
 
   /* ---- mock do cronometro ---- */
+  /* Miniatura do cronometro, com as mesmas cores do programa:
+     fundo grafite e digitos na cor de "ultimo minuto". */
   .mock {
-    background: #10131a;
-    border: 1px solid #272b34;
+    background: #1e2422;
+    border: 1px solid #333b37;
     border-radius: 12px;
     padding: 26px 34px 22px;
     display: inline-block;
@@ -65,12 +71,12 @@
   }
   .mock .digits {
     font: 600 3.3rem/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
-    color: #ffb454;
+    color: #e8752d;
     letter-spacing: 0.04em;
   }
   .mock .label {
     font-size: .74rem; text-transform: uppercase; letter-spacing: .13em;
-    color: #6f7684; margin-top: 12px;
+    color: #98a199; margin-top: 12px;
   }
 
   /* ---- botoes ---- */
