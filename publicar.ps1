@@ -22,6 +22,11 @@
 .PARAMETER Versao
     Numero da versao, sem o "v". Exemplo: 1.1.0
 
+.PARAMETER AtualizarVersao
+    Escreve a versao pedida no CronoAula.csproj e registra a mudanca em um
+    commit proprio, antes de publicar. Sem esta opcao, o script exige que o
+    csproj ja declare a versao e para se houver divergencia.
+
 .PARAMETER ManterAnteriores
     Publica a versao nova sem remover as anteriores.
 
@@ -29,8 +34,8 @@
     Mostra tudo o que seria feito, sem alterar nada no GitHub.
 
 .EXAMPLE
-    .\publicar.ps1 -Versao 1.2.0 -Simular
-    .\publicar.ps1 -Versao 1.2.0
+    .\publicar.ps1 -Versao 1.2.0 -AtualizarVersao -Simular
+    .\publicar.ps1 -Versao 1.2.0 -AtualizarVersao
 
 .NOTES
     Exige o GitHub CLI autenticado uma unica vez:
@@ -44,6 +49,7 @@ param(
     [ValidatePattern('^\d+\.\d+\.\d+$')]
     [string]$Versao,
 
+    [switch]$AtualizarVersao,
     [switch]$ManterAnteriores,
     [switch]$Simular
 )
@@ -171,11 +177,61 @@ if ($soNoRemoto) {
 # ---------------------------------------------------------------------------
 Passo "Versao declarada no codigo"
 
-$csproj = Get-Content ".\CronoAula\CronoAula.csproj" -Raw
-if ($csproj -notmatch "<Version>$([regex]::Escape($Versao))</Version>") {
-    Parar "O CronoAula.csproj nao declara a versao $Versao. Atualize <Version>, <FileVersion> e <AssemblyVersion>."
+$arquivoCsproj = Join-Path $PSScriptRoot "CronoAula\CronoAula.csproj"
+$csproj = Get-Content $arquivoCsproj -Raw
+$jaDeclara = $csproj -match "<Version>$([regex]::Escape($Versao))</Version>"
+
+if ($jaDeclara) {
+    Ok "csproj declara $Versao"
 }
-Ok "csproj declara $Versao"
+elseif (-not $AtualizarVersao) {
+    Write-Host "  O CronoAula.csproj nao declara a versao $Versao." -ForegroundColor Red
+    Write-Host "  Atualize <Version>, <FileVersion> e <AssemblyVersion>, ou rode:" -ForegroundColor Yellow
+    Write-Host "      .\publicar.ps1 -Versao $Versao -AtualizarVersao"
+    Parar "Versao do codigo diferente da versao pedida."
+}
+else {
+    # Reescreve as tres marcacoes de versao e registra a mudanca em um commit
+    # proprio. Fica separada do restante do historico, e da para ver depois
+    # exatamente quando cada versao foi declarada.
+    $versaoAtual = if ($csproj -match "<Version>([^<]+)</Version>") { $Matches[1] } else { "desconhecida" }
+
+    if ($Simular) {
+        Aviso "simulacao: mudaria a versao de $versaoAtual para $Versao no csproj e commitaria"
+    }
+    else {
+        $novo = $csproj
+        foreach ($marca in "Version", "FileVersion", "AssemblyVersion") {
+            $novo = [regex]::Replace($novo, "<$marca>[^<]+</$marca>", "<$marca>$Versao</$marca>")
+        }
+
+        # Preserva a codificacao do arquivo, sem introduzir marca de ordem de
+        # bytes onde nao havia.
+        [System.IO.File]::WriteAllText($arquivoCsproj, $novo, (New-Object System.Text.UTF8Encoding($false)))
+
+        $conferencia = Get-Content $arquivoCsproj -Raw
+        foreach ($marca in "Version", "FileVersion", "AssemblyVersion") {
+            if ($conferencia -notmatch "<$marca>$([regex]::Escape($Versao))</$marca>") {
+                Parar "Nao consegui atualizar <$marca> no csproj."
+            }
+        }
+
+        $registro = ExecGit add -- "CronoAula/CronoAula.csproj"
+        if (-not $registro.Ok) { Parar "Nao consegui preparar o csproj para commit." }
+
+        $arquivoMensagem = Join-Path $env:TEMP "cronoaula-versao-$Versao.txt"
+        [System.IO.File]::WriteAllText(
+            $arquivoMensagem,
+            "Versao $Versao`n`nAtualiza Version, FileVersion e AssemblyVersion no csproj.`n",
+            (New-Object System.Text.UTF8Encoding($false)))
+
+        $commit = ExecGit commit --quiet -F $arquivoMensagem
+        Remove-Item $arquivoMensagem -ErrorAction SilentlyContinue
+        if (-not $commit.Ok) { Parar "Nao consegui registrar o commit da versao." }
+
+        Ok "versao alterada de $versaoAtual para $Versao e registrada"
+    }
+}
 
 # ---------------------------------------------------------------------------
 Passo "Testes e geracao do executavel"
