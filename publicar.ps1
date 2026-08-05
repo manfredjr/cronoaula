@@ -106,8 +106,13 @@ function Invoke-Externo {
 }
 
 # Nomes diferentes dos programas, de proposito, pelo motivo explicado acima.
-function ExecGit { Invoke-Externo -Programa "git" @args }
-function ExecGh  { Invoke-Externo -Programa "gh"  @args }
+#
+# Os argumentos vao amarrados a -Argumentos, e nao espalhados com @args.
+# Espalhando, o PowerShell tenta ler pedacos como -f, -a e -m como se fossem
+# parametros desta funcao e recusa a chamada. Amarrados ao array, seguem
+# intactos para o programa externo.
+function ExecGit { Invoke-Externo -Programa "git" -Argumentos $args }
+function ExecGh  { Invoke-Externo -Programa "gh"  -Argumentos $args }
 
 # ---------------------------------------------------------------------------
 Passo "Ferramentas"
