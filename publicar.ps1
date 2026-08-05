@@ -193,7 +193,10 @@ if ($Simular) {
 # ---------------------------------------------------------------------------
 Passo "Versoes atualmente publicadas"
 
-$consulta = ExecGh release list --limit 100 --json tagName,name
+# A lista de campos vai entre aspas de proposito: sem elas, a virgula e lida
+# como operador de array do PowerShell e o gh recebe "tagName name" como um
+# campo unico, devolvendo erro e fazendo o script achar que nao ha releases.
+$consulta = ExecGh release list --limit 100 --json "tagName,name"
 $releases = @()
 if ($consulta.Ok -and $consulta.Saida) {
     try { $releases = @($consulta.Saida -join "" | ConvertFrom-Json) } catch { $releases = @() }
