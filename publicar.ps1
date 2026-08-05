@@ -59,6 +59,56 @@ function Ok($texto)    { Write-Host "  $texto" -ForegroundColor Green }
 function Aviso($texto) { Write-Host "  $texto" -ForegroundColor Yellow }
 function Parar($texto) { Write-Host "`nERRO: $texto" -ForegroundColor Red; exit 1 }
 
+<#
+    Executa git ou gh sem que o PowerShell trate a saida deles como falha.
+
+    Motivo, e a razao de este script ja ter quebrado no meio de uma publicacao:
+    o git escreve o progresso na saida de ERRO, nao na saida normal. No
+    PowerShell 5.1, com ErrorActionPreference = "Stop", cada linha vinda dali
+    vira uma excecao e derruba o script, mesmo quando o comando terminou bem.
+
+    A consequencia foi real: o script apagou a tag da versao, o que levou a
+    release junto, e abortou antes de recriar. O repositorio ficou so com a
+    versao antiga publicada.
+
+    Toda chamada a programa externo neste script passa por aqui. Quem decide se
+    houve falha e o codigo de saida, nunca o fato de ter escrito algo.
+#>
+function Invoke-Externo {
+    param(
+        [Parameter(Mandatory = $true)][string]$Programa,
+        [Parameter(ValueFromRemainingArguments = $true)][string[]]$Argumentos
+    )
+
+    # Resolve o executavel de verdade, e nao pelo nome. Sem isto, uma funcao
+    # deste script com o mesmo nome do programa seria chamada no lugar dele:
+    # o PowerShell resolve funcao antes de aplicativo, e o resultado e uma
+    # recursao infinita.
+    $caminho = (Get-Command $Programa -CommandType Application -ErrorAction SilentlyContinue |
+                Select-Object -First 1).Source
+    if (-not $caminho) {
+        return [PSCustomObject]@{ Codigo = 127; Saida = @("$Programa nao encontrado"); Ok = $false }
+    }
+
+    $anterior = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $saida = & $caminho @Argumentos 2>&1 | ForEach-Object { $_.ToString() }
+        return [PSCustomObject]@{
+            Codigo = $LASTEXITCODE
+            Saida  = @($saida)
+            Ok     = ($LASTEXITCODE -eq 0)
+        }
+    }
+    finally {
+        $ErrorActionPreference = $anterior
+    }
+}
+
+# Nomes diferentes dos programas, de proposito, pelo motivo explicado acima.
+function ExecGit { Invoke-Externo -Programa "git" @args }
+function ExecGh  { Invoke-Externo -Programa "gh"  @args }
+
 # ---------------------------------------------------------------------------
 Passo "Ferramentas"
 
@@ -76,13 +126,8 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
 # externo com ErrorActionPreference = Stop transforma cada linha em excecao,
 # mesmo quando o programa terminou bem. Por isso baixamos a preferencia so
 # nesta chamada e olhamos apenas o codigo de saida.
-$preferenciaAnterior = $ErrorActionPreference
-$ErrorActionPreference = "Continue"
-gh auth status *> $null
-$semLogin = ($LASTEXITCODE -ne 0)
-$ErrorActionPreference = $preferenciaAnterior
-
-if ($semLogin) {
+$autenticacao = ExecGh auth status
+if (-not $autenticacao.Ok) {
     Write-Host "  O GitHub CLI esta instalado, mas sem login." -ForegroundColor Red
     Write-Host "  Rode uma unica vez, no seu terminal:" -ForegroundColor Yellow
     Write-Host "      gh auth login"
@@ -95,7 +140,7 @@ Ok "GitHub CLI pronto e autenticado"
 # ---------------------------------------------------------------------------
 Passo "Estado do repositorio"
 
-$pendentes = git status --porcelain
+$pendentes = (ExecGit status --porcelain).Saida | Where-Object { $_ }
 if ($pendentes) {
     Write-Host "  Ha alteracoes nao registradas:" -ForegroundColor Red
     $pendentes | ForEach-Object { Write-Host "    $_" }
@@ -103,14 +148,15 @@ if ($pendentes) {
 }
 Ok "Arvore de trabalho limpa"
 
-git fetch origin --tags --prune --quiet
-$naoEnviados = git log origin/main..main --oneline
+ExecGit fetch origin --tags --prune --quiet | Out-Null
+
+$naoEnviados = (ExecGit log origin/main..main --oneline).Saida | Where-Object { $_ }
 if ($naoEnviados) {
     Aviso "Commits ainda nao enviados:"
     $naoEnviados | ForEach-Object { Write-Host "    $_" }
 }
 
-$soNoRemoto = git log main..origin/main --oneline
+$soNoRemoto = (ExecGit log main..origin/main --oneline).Saida | Where-Object { $_ }
 if ($soNoRemoto) {
     Write-Host "  O GitHub tem commits que voce nao possui:" -ForegroundColor Red
     $soNoRemoto | ForEach-Object { Write-Host "    $_" }
@@ -147,8 +193,11 @@ if ($Simular) {
 # ---------------------------------------------------------------------------
 Passo "Versoes atualmente publicadas"
 
-$releasesJson = gh release list --limit 100 --json tagName,name 2>$null
-$releases = if ($releasesJson) { $releasesJson | ConvertFrom-Json } else { @() }
+$consulta = ExecGh release list --limit 100 --json tagName,name
+$releases = @()
+if ($consulta.Ok -and $consulta.Saida) {
+    try { $releases = @($consulta.Saida -join "" | ConvertFrom-Json) } catch { $releases = @() }
+}
 
 if ($releases.Count -eq 0) { Ok "nenhuma" }
 else { $releases | ForEach-Object { Write-Host "    $($_.tagName)  $($_.name)" } }
@@ -174,24 +223,37 @@ mesmo**. O README explica em detalhe, na secao Distribuicao.
 if ($Simular) {
     Aviso "simulacao: criaria a tag $tag e a release com o executavel"
 } else {
-    # A tag pode ja existir apontando para o commit errado.
-    $tagRemota = git ls-remote --tags origin $tag
-    if ($tagRemota) {
-        Aviso "A tag $tag ja existe no GitHub. Sera reposicionada no commit atual."
-        gh release delete $tag --yes --cleanup-tag 2>$null | Out-Null
-        git push origin ":refs/tags/$tag" 2>$null | Out-Null
+    # Ordem importa. A tag so e removida depois que o codigo novo ja esta no
+    # GitHub, e a release e recriada logo em seguida. Assim, se algo falhar no
+    # meio, o repositorio nunca fica sem nenhuma versao publicada por muito
+    # tempo, que foi o que aconteceu quando este script quebrou.
+    ExecGit push origin main --quiet | Out-Null
+
+    $releaseExiste = (ExecGh release view $tag).Ok
+    if ($releaseExiste) {
+        Aviso "A release $tag ja existe. Sera refeita com o executavel atual."
+        $r = ExecGh release delete $tag --yes --cleanup-tag
+        if (-not $r.Ok) { Parar "Nao foi possivel remover a release anterior de $tag." }
     }
 
-    git tag -f -a $tag -m "CronoAula $Versao" | Out-Null
-    git push origin main --quiet
-    git push origin $tag --force --quiet
+    # A tag pode existir sem release, apontando para o commit errado.
+    if ((ExecGit ls-remote --tags origin $tag).Saida | Where-Object { $_ }) {
+        ExecGit push origin ":refs/tags/$tag" | Out-Null
+    }
+
+    ExecGit tag -f -a $tag -m "CronoAula $Versao" | Out-Null
+    $envio = ExecGit push origin $tag --force
+    if (-not $envio.Ok) { Parar "Nao foi possivel enviar a tag $tag." }
     Ok "Codigo e tag enviados"
 
     $arquivoNotas = Join-Path $env:TEMP "cronoaula-notas-$Versao.md"
     Set-Content -Path $arquivoNotas -Value $notas -Encoding UTF8
 
-    gh release create $tag $exe --title "CronoAula $Versao" --notes-file $arquivoNotas
-    if ($LASTEXITCODE -ne 0) { Parar "Nao foi possivel criar a release." }
+    $criacao = ExecGh release create $tag $exe --title "CronoAula $Versao" --notes-file $arquivoNotas
+    if (-not $criacao.Ok) {
+        $criacao.Saida | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
+        Parar "Nao foi possivel criar a release."
+    }
     Remove-Item $arquivoNotas -ErrorAction SilentlyContinue
     Ok "Release $tag publicada com o executavel"
 }
@@ -211,8 +273,8 @@ else {
             Aviso "simulacao: removeria a release e a tag $($r.tagName)"
         } else {
             # --cleanup-tag remove a tag junto com a release.
-            gh release delete $r.tagName --yes --cleanup-tag
-            if ($LASTEXITCODE -eq 0) { Ok "removida: $($r.tagName)" }
+            $remocao = ExecGh release delete $r.tagName --yes --cleanup-tag
+            if ($remocao.Ok) { Ok "removida: $($r.tagName)" }
             else { Aviso "nao foi possivel remover $($r.tagName)" }
         }
     }
@@ -224,7 +286,7 @@ Passo "Resultado"
 if ($Simular) {
     Write-Host "  Nada foi alterado. Rode sem -Simular para publicar de verdade."
 } else {
-    gh release list --limit 20
+    (ExecGh release list --limit 20).Saida | ForEach-Object { Write-Host "  $_" }
     Write-Host ""
     Write-Host "  https://github.com/manfredjr/cronoaula/releases/latest" -ForegroundColor Cyan
 }
