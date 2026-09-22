@@ -189,3 +189,31 @@ test('cancelar depois de uma carga falha nao deixa nada agendado quando os sons 
   await som.liberar();
   assert.equal(fontes.length, 0);
 });
+
+// Reproduz o gesto real: pointerdown chama liberar sem esperar, e o mesmo gesto ja chama
+// agendar em seguida (iniciar -> reagendar -> som.agendar). O agendar entra na mesma carga
+// que ja esta em andamento; cada som so pode ser agendado uma vez.
+test('liberar sem esperar seguido de agendar nao agenda cada som duas vezes', async () => {
+  const { fontes, som } = montar();
+  som.liberar();
+  await som.agendar(base);
+  assert.deepEqual(fontes.map((f) => [f.buffer.nome, f.inicio, f.ganho.gain.value]), [
+    ['aviso', 4, 0.35],
+    ['alerta', 10, 0.5],
+    ['alerta', 13, 0.5],
+    ['alerta', 16, 0.5],
+    ['alerta', 19, 0.5],
+    ['alerta', 22, 0.5],
+  ]);
+});
+
+// Mesma corrida, mas com o carregarBuffers do primeiro gesto so terminando depois que o
+// agendar ja fez sua propria checagem de buffers: confirma que quem chega primeiro agenda
+// e o outro desiste, em vez de os dois agendarem.
+test('carregarBuffers que resolve durante o await de agendar tambem nao duplica', async () => {
+  const { fontes, som } = montar();
+  const p1 = som.liberar();
+  const p2 = som.agendar(base);
+  await Promise.all([p1, p2]);
+  assert.equal(fontes.length, 6);
+});

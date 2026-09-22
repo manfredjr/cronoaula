@@ -202,8 +202,8 @@ function somar(ms) {
 
 async function pedirTelaAcesa() {
   if (trava || pedidoTelaAcesa || !('wakeLock' in navigator) || document.hidden) return;
-  pedidoTelaAcesa = navigator.wakeLock.request('screen');
   try {
+    pedidoTelaAcesa = navigator.wakeLock.request('screen');
     const nova = await pedidoTelaAcesa;
     if (motor.estado() !== 'contando') {
       nova.release().catch(() => {});

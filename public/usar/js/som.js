@@ -115,10 +115,14 @@ export function criarSom({
     if (!ctx) return;
     const base = ctx.currentTime;
     // guarda a intencao deste agendar: se os sons ainda nao chegaram, carregarBuffers usa isto depois
-    pendente = { opcoes, base, geracao: minha };
+    const meuPendente = { opcoes, base, geracao: minha };
+    pendente = meuPendente;
     await liberar();
     if (minha !== geracao) return;
-    if (!buffers) return; // sons ainda nao chegaram; fica pendente para quando chegarem
+    // enquanto esperava, um carregarBuffers concorrente (de outro gesto) pode ja ter consumido
+    // este pendente e agendado sozinho; se nao foi mais este objeto, ja esta feito
+    if (pendente !== meuPendente) return;
+    if (!buffers) return; // sons ainda nao chegaram; meuPendente fica esperando a proxima carga
     pendente = null;
     for (const item of planejar(opcoes)) tocar(item.som, base + item.emS, item.volume, item.som);
   }
