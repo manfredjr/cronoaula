@@ -223,8 +223,8 @@ Ao abrir, a página carrega o último tempo usado.
 
 ## 9. Testes
 
-**Automáticos, só na máquina de desenvolvimento**, com `node --test web-testes/`. O Node não vai
-para o servidor.
+**Automáticos, só na máquina de desenvolvimento**, com `node --test "web-testes/*.test.js"`. O Node não vai
+para o servidor. O padrão entre aspas é necessário: o Node 24 não aceita a pasta sozinha.
 
 | Peça | O que cobrir |
 |---|---|
@@ -277,7 +277,7 @@ listar o Node.
 - Ajustes sobrevivem a fechar e abrir a página, e a página funciona com o armazenamento
   bloqueado.
 - A página não faz nenhuma requisição fora de `cronoaula.escalada.dev`.
-- `dotnet test` e `node --test web-testes/` passam; o `build.ps1` roda os dois.
+- `dotnet test` e `node --test "web-testes/*.test.js"` passam; o `build.ps1` roda os dois.
 
 ## 12. Riscos conhecidos
 

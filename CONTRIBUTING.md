@@ -32,6 +32,8 @@ como o cronômetro é usado em outras aulas orienta as próximas versões.
 ### O que você precisa
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Node.js](https://nodejs.org) LTS, só para rodar os testes da versão web. O Node não vai para
+  o servidor: o site é todo estático.
 - Windows 10 ou 11, 64 bits (o projeto usa WPF e APIs do Windows)
 - Um editor: Visual Studio 2022, Rider ou VS Code
 
@@ -49,8 +51,12 @@ dotnet build
 dotnet test
 ```
 
-Os 107 testes devem passar antes de você começar a mexer em qualquer coisa. Se
-algum falhar em uma cópia limpa, isso já é uma issue.
+```bash
+node --test "web-testes/*.test.js"
+```
+
+Os dois conjuntos de testes devem passar antes de você começar a mexer em qualquer
+coisa. Se algum falhar em uma cópia limpa, isso já é uma issue.
 
 ### Gerar o executável
 
@@ -66,7 +72,8 @@ O script roda os testes e recusa publicar se algum falhar. O resultado sai em
 1. Faça um *fork* do repositório.
 2. Crie um branch com nome descritivo: `git checkout -b som-personalizado`.
 3. Faça as alterações, com commits pequenos e mensagens claras.
-4. Garanta que `dotnet test` continua passando.
+4. Garanta que `dotnet test` e `node --test "web-testes/*.test.js"` continuam passando.
+   Mudou uma regra do cronômetro? Mude nos dois lados e em `casos-compartilhados.json`.
 5. Abra um *pull request* explicando **o problema de sala de aula** que a
    mudança resolve, não apenas o que o código faz.
 

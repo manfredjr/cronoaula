@@ -228,4 +228,14 @@ public class SiteTests
         Assert.Matches("<a class=\"btn btn-alt\" href=\"https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe\">\\s*Baixar para Windows\\s*</a>", html);
         Assert.Contains("fica por cima do PowerPoint", html);
     }
+
+    [Fact]
+    public void Deploy_ConfereAVersaoWeb()
+    {
+        // O deploy do cPanel para antes de publicar se a pagina da versao web sumir.
+        var raiz = Path.GetDirectoryName(PastaDoSite())!;
+        var yml = File.ReadAllText(Path.Combine(raiz, ".cpanel.yml"));
+
+        Assert.Contains("test -f $REPO/public/usar/index.html", yml);
+    }
 }

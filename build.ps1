@@ -14,7 +14,7 @@
 
 [CmdletBinding()]
 param(
-    # Pula a execucao dos testes (nao recomendado).
+    # Pula todos os testes, os do programa e os da versao web (nao recomendado).
     [switch]$SkipTests,
 
     # Pasta de saida do executavel.
@@ -42,17 +42,37 @@ catch {
 # --- Testes ------------------------------------------------------------------
 if (-not $SkipTests) {
     Write-Host ""
-    Write-Host "Executando os testes..." -ForegroundColor Cyan
+    Write-Host "Executando os testes do programa..." -ForegroundColor Cyan
     dotnet test --nologo --verbosity quiet
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""
         Write-Host "ERRO: os testes falharam. O executavel NAO foi gerado." -ForegroundColor Red
         exit 1
     }
-    Write-Host "Testes aprovados." -ForegroundColor Green
+    Write-Host "Testes do programa aprovados." -ForegroundColor Green
+
+    # A versao web vive no mesmo repositorio e segue as mesmas regras. Sem Node,
+    # o script para em vez de pular calado.
+    if (-not (Get-Command node -CommandType Application -ErrorAction SilentlyContinue)) {
+        Write-Host ""
+        Write-Host "ERRO: o Node.js nao foi encontrado, e ele roda os testes da versao web." -ForegroundColor Red
+        Write-Host "Instale o Node.js LTS em https://nodejs.org" -ForegroundColor Yellow
+        Write-Host "Para gerar so o executavel, sem nenhum teste: .\build.ps1 -SkipTests" -ForegroundColor Yellow
+        exit 1
+    }
+
+    Write-Host ""
+    Write-Host "Executando os testes da versao web..." -ForegroundColor Cyan
+    node --test "web-testes/*.test.js"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Write-Host "ERRO: os testes da versao web falharam. O executavel NAO foi gerado." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "Testes da versao web aprovados." -ForegroundColor Green
 }
 else {
-    Write-Host "Testes ignorados (-SkipTests)." -ForegroundColor Yellow
+    Write-Host "Testes ignorados (-SkipTests), os do programa e os da versao web." -ForegroundColor Yellow
 }
 
 # --- Limpeza da saida anterior ----------------------------------------------

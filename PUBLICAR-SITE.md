@@ -100,7 +100,10 @@ renomeada. Para quem ainda tiver o link antigo:
 1. Alteração em `public/` entra por Pull Request, e o merge só com autorização.
 2. cPanel, Git Version Control, Gerenciar, aba Pull or Deploy.
 3. Update from Remote, F5, Deploy HEAD Commit.
-4. Purgar o cache da Cloudflare e conferir.
+4. **Purgar o cache da Cloudflare** (Caching, Configuration, Purge Everything) e conferir. A
+   página HTML chega sem cache, mas `.js`, `.css` e `.wav` da versão web podem ficar guardados
+   na borda, e o navegador receberia o motor antigo com a página nova.
+5. Abrir `https://cronoaula.escalada.dev/usar/`, carregar um tempo rápido e conferir que conta.
 
 Uma versão nova do programa não exige deploy do site: o link de download aponta
 sempre para a release mais recente.
