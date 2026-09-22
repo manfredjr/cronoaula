@@ -92,6 +92,11 @@ public class SiteTests
         Assert.Contains("href=\"https://escalada.dev\"", html);
         Assert.Contains("src=\"logo-mt.png\"", html);
         Assert.True(File.Exists(Path.Combine(raiz, "logo-mt.png")), "public/logo-mt.png nao existe.");
+
+        // Manual da marca: sobre fundo escuro, o logo vai com o texto em branco,
+        // sem caixa clara atras.
+        Assert.Contains("<source srcset=\"logo-mt-claro.svg\" media=\"(prefers-color-scheme: dark)\">", html);
+        Assert.True(File.Exists(Path.Combine(raiz, "logo-mt-claro.svg")), "public/logo-mt-claro.svg nao existe.");
     }
 
     [Fact]
@@ -214,7 +219,8 @@ public class SiteTests
         Assert.Contains("Desenvolvido e publicado por", html);
         Assert.Contains("href=\"https://www.manfred.com.br\"", html);
         Assert.Contains("href=\"https://escalada.dev\"", html);
-        Assert.Contains("src=\"../logo-mt.png\"", html);
+        // A pagina e sempre escura: vale a versao do logo com o texto em branco.
+        Assert.Contains("src=\"../logo-mt-claro.svg\"", html);
         Assert.Contains("GPL-3.0", html[html.IndexOf("<footer", StringComparison.Ordinal)..]);
     }
 

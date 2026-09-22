@@ -158,10 +158,9 @@ dialog::backdrop { background: #000000aa; }
 .rodape a { color: var(--sec); text-decoration: none; }
 .rodape a:hover { text-decoration: underline; }
 .rodape a.rodape-forte { color: var(--areia); font-weight: 500; }
-.rodape-logo {
-  order: -1; flex-shrink: 0; display: inline-flex; border-radius: 2px;
-  background: var(--areia); padding: 2px;
-}
+/* A pagina e sempre escura: vale a versao do logo com o texto em branco,
+   como pede o manual da marca, sem caixa clara atras. */
+.rodape-logo { order: -1; flex-shrink: 0; display: inline-flex; }
 .rodape-logo img { height: 28px; width: auto; display: block; }
 @media (min-width: 640px) {
   .rodape { flex-direction: row; gap: 12px; text-align: right; }
