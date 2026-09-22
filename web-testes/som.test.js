@@ -27,14 +27,20 @@ test('plano: som desligado não toca nada', () => {
 test('plano: só o que está no futuro', () => {
   assert.deepEqual(planejar({ ...base, avisoEmMs: null }).filter((p) => p.som === 'aviso'), []);
   assert.deepEqual(planejar({ ...base, avisoEmMs: -1 }).filter((p) => p.som === 'aviso'), []);
-  assert.deepEqual(planejar({ ...base, avisoEmMs: null, fimEmMs: 0 }), []);
+  // fimEmMs 0 e o fim chegando agora: o alerta ainda toca, a partir de emS 0.
+  assert.deepEqual(planejar({ ...base, avisoEmMs: null, fimEmMs: 0 }), [
+    { som: 'alerta', emS: 0, volume: 0.5 },
+    { som: 'alerta', emS: 3, volume: 0.5 },
+    { som: 'alerta', emS: 6, volume: 0.5 },
+    { som: 'alerta', emS: 9, volume: 0.5 },
+    { som: 'alerta', emS: 12, volume: 0.5 },
+  ]);
   assert.deepEqual(planejar({ ...base, avisoEmMs: null, fimEmMs: -5000 }), []);
 });
 
 // Contexto de audio falso: registra o que foi agendado.
-function montar() {
-  const fontes = [];
-  const ctx = {
+function criarCtxFalso(fontes) {
+  return {
     currentTime: 0,
     state: 'running',
     destination: {},
@@ -52,10 +58,33 @@ function montar() {
       return fonte;
     },
   };
+}
+
+function montar() {
+  const fontes = [];
+  const ctx = criarCtxFalso(fontes);
   const buscar = async (url) => ({
     ok: true,
     arrayBuffer: async () => ({ nome: String(url).includes('aviso') ? 'aviso' : 'alerta' }),
   });
+  const som = criarSom({ criarContexto: () => ctx, buscar });
+  return { ctx, fontes, som };
+}
+
+// As duas primeiras chamadas de buscar (a primeira rodada de carregarBuffers) falham;
+// da terceira em diante (segunda rodada) tem sucesso.
+function montarComBuscarFalho() {
+  const fontes = [];
+  const ctx = criarCtxFalso(fontes);
+  let chamadas = 0;
+  const buscar = async (url) => {
+    chamadas++;
+    if (chamadas <= 2) throw new Error('falha de rede');
+    return {
+      ok: true,
+      arrayBuffer: async () => ({ nome: String(url).includes('aviso') ? 'aviso' : 'alerta' }),
+    };
+  };
   const som = criarSom({ criarContexto: () => ctx, buscar });
   return { ctx, fontes, som };
 }
@@ -134,4 +163,29 @@ test('cancelar para tudo', async () => {
   await som.agendar(base);
   som.cancelar();
   assert.equal(fontes.every((f) => f.parado), true);
+});
+
+test('som que falhou ao carregar e agendado quando um gesto seguinte consegue carregar', async () => {
+  const { fontes, som } = montarComBuscarFalho();
+  som.liberar(); // gesto que dispara a carga (sem esperar), como o pointerdown de verdade
+  await som.agendar(base); // o agendar entra na mesma rodada, que falha: nao agenda nada
+  assert.equal(fontes.length, 0);
+  await som.liberar(); // segundo gesto: carrega com sucesso e agenda o que ficou pendente
+  assert.deepEqual(fontes.map((f) => [f.buffer.nome, f.inicio, f.ganho.gain.value]), [
+    ['aviso', 4, 0.35],
+    ['alerta', 10, 0.5],
+    ['alerta', 13, 0.5],
+    ['alerta', 16, 0.5],
+    ['alerta', 19, 0.5],
+    ['alerta', 22, 0.5],
+  ]);
+});
+
+test('cancelar depois de uma carga falha nao deixa nada agendado quando os sons chegam depois', async () => {
+  const { fontes, som } = montarComBuscarFalho();
+  som.liberar();
+  await som.agendar(base);
+  som.cancelar();
+  await som.liberar();
+  assert.equal(fontes.length, 0);
 });

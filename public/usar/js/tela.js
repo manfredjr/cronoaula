@@ -57,6 +57,7 @@ let armado = null;        // minutos do tempo rapido carregado, esperando o segu
 let avisoPassou = false;  // o aviso antecipado ja tocou ou ficou para tras nesta contagem
 let quadroPedido = null;
 let trava = null;         // Wake Lock
+let pedidoTelaAcesa = null; // pedido de trava em andamento, evita duas travas se o pedido se sobrepuser
 let temporizadorBarra = null;
 const ultimo = { digitos: '', faixa: '', estado: null, botao: '', armado: undefined };
 
@@ -191,6 +192,8 @@ function somar(ms) {
   const limiar = limiarAviso();
   if (motor.estado() === 'contando' && limiar !== null && motor.restante() <= limiar) avisoPassou = true;
   motor.somar(ms);
+  ajustes = { ...ajustes, ultimoMinutos: motor.duracao() / MINUTO };
+  salvar(armazenamento, ajustes);
   reagendar();
   desenhar();
 }
@@ -198,17 +201,20 @@ function somar(ms) {
 // ---- tela acesa (Wake Lock) ---------------------------------------------------
 
 async function pedirTelaAcesa() {
-  if (trava || !('wakeLock' in navigator) || document.hidden) return;
+  if (trava || pedidoTelaAcesa || !('wakeLock' in navigator) || document.hidden) return;
+  pedidoTelaAcesa = navigator.wakeLock.request('screen');
   try {
-    const nova = await navigator.wakeLock.request('screen');
+    const nova = await pedidoTelaAcesa;
     if (motor.estado() !== 'contando') {
       nova.release().catch(() => {});
       return;
     }
     trava = nova;
-    trava.addEventListener('release', () => { trava = null; });
+    trava.addEventListener('release', () => { if (trava === nova) trava = null; });
   } catch {
-    trava = null; // sem suporte ou negado: segue sem
+    // sem suporte ou negado: segue sem
+  } finally {
+    pedidoTelaAcesa = null;
   }
 }
 
@@ -239,8 +245,21 @@ function ativarProjecao(sim) {
 
 function entrarTelaCheia() {
   // O Safari do iPhone nao tem tela cheia fora de video: la vale o modo projecao.
-  if (temTelaCheia) document.documentElement.requestFullscreen().catch(() => ativarProjecao(true));
-  else ativarProjecao(true);
+  if (!temTelaCheia) {
+    ativarProjecao(true);
+    return;
+  }
+  let assentado = false;
+  // Alguns navegadores nunca respondem ao pedido (nem resolvem, nem rejeitam): sem isto o botao trava.
+  const semResposta = setTimeout(() => {
+    if (!assentado) ativarProjecao(true);
+  }, 1500);
+  document.documentElement.requestFullscreen()
+    .catch(() => ativarProjecao(true))
+    .finally(() => {
+      assentado = true;
+      clearTimeout(semResposta);
+    });
 }
 
 function sairTelaCheia() {

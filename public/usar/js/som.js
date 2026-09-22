@@ -20,7 +20,7 @@ export function planejar({ fimEmMs, avisoEmMs, repeticoes, intervaloS, volume, l
   if (avisoEmMs !== null && avisoEmMs !== undefined && avisoEmMs > 0)
     plano.push({ som: 'aviso', emS: avisoEmMs / 1000, volume: volume * VOLUME_AVISO });
 
-  if (fimEmMs > 0) {
+  if (fimEmMs >= 0) {
     const toques = repeticoes > 0 ? Math.min(repeticoes, MAX_TOQUES) : MAX_TOQUES;
     for (let i = 0; i < toques; i++)
       plano.push({ som: 'alerta', emS: fimEmMs / 1000 + i * intervaloS, volume });
@@ -30,7 +30,17 @@ export function planejar({ fimEmMs, avisoEmMs, repeticoes, intervaloS, volume, l
 }
 
 export function criarSom({
-  criarContexto = () => new (window.AudioContext || window.webkitAudioContext)(),
+  criarContexto = () => {
+    // Safari 16.4+ no iPhone: sem isto, a chave lateral de silencio muda o som para mudo
+    if (navigator.audioSession) {
+      try {
+        navigator.audioSession.type = 'playback';
+      } catch {
+        // navegador sem suporte a este campo: segue sem
+      }
+    }
+    return new (window.AudioContext || window.webkitAudioContext)();
+  },
   buscar = (url) => fetch(url),
 } = {}) {
   let ctx = null;
@@ -38,6 +48,7 @@ export function criarSom({
   let carregando = null;
   let agendados = [];  // { fonte, tipo: 'alerta' | 'aviso' | 'teste', quando }
   let geracao = 0;     // invalida um agendar que ainda esperava os sons carregarem
+  let pendente = null; // { opcoes, base, geracao } do ultimo agendar que ficou sem sons
 
   async function carregarBuffers() {
     try {
@@ -47,6 +58,12 @@ export function criarSom({
         return ctx.decodeAudioData(await resposta.arrayBuffer());
       }));
       buffers = { alerta, aviso };
+      // um gesto anterior tentou agendar sem sucesso; agora que os sons chegaram, agenda do jeito que ficou pendente
+      if (pendente && pendente.geracao === geracao) {
+        const { opcoes, base } = pendente;
+        pendente = null;
+        for (const item of planejar(opcoes)) tocar(item.som, base + item.emS, item.volume, item.som);
+      }
     } catch {
       carregando = null; // tenta de novo no proximo gesto
     }
@@ -87,6 +104,7 @@ export function criarSom({
 
   function cancelar() {
     geracao++;
+    pendente = null;
     for (const a of agendados) parar(a.fonte);
     agendados = [];
   }
@@ -96,8 +114,12 @@ export function criarSom({
     const minha = geracao;
     if (!ctx) return;
     const base = ctx.currentTime;
+    // guarda a intencao deste agendar: se os sons ainda nao chegaram, carregarBuffers usa isto depois
+    pendente = { opcoes, base, geracao: minha };
     await liberar();
-    if (minha !== geracao || !buffers) return;
+    if (minha !== geracao) return;
+    if (!buffers) return; // sons ainda nao chegaram; fica pendente para quando chegarem
+    pendente = null;
     for (const item of planejar(opcoes)) tocar(item.som, base + item.emS, item.volume, item.som);
   }
 

@@ -25,7 +25,8 @@ de Windows.
 
 No Safari, principalmente no iPhone com a tela bloqueada, o navegador pode suspender o som da
 página. Enquanto conta, a página pede para a tela não apagar, o que evita o caso na maioria
-das vezes.
+das vezes. Em iPhones com iOS mais antigo, a chave lateral de silêncio pode mudar o alerta
+para mudo, então deixe a chave desligada se for contar com o som.
 
 ---
 
