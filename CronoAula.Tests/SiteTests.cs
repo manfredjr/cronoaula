@@ -217,4 +217,15 @@ public class SiteTests
         Assert.Contains("src=\"../logo-mt.png\"", html);
         Assert.Contains("GPL-3.0", html[html.IndexOf("<footer", StringComparison.Ordinal)..]);
     }
+
+    [Fact]
+    public void Abertura_OfereceOsDoisCaminhos()
+    {
+        // Opcao B da maquete: navegador em destaque (botao cheio), Windows vazado.
+        var html = File.ReadAllText(Path.Combine(PastaDoSite(), "index.html"));
+
+        Assert.Matches("<a class=\"btn btn-main\" href=\"usar/\">\\s*Usar no navegador\\s*</a>", html);
+        Assert.Matches("<a class=\"btn btn-alt\" href=\"https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe\">\\s*Baixar para Windows\\s*</a>", html);
+        Assert.Contains("fica por cima do PowerPoint", html);
+    }
 }
