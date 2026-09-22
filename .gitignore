@@ -32,3 +32,7 @@ packages/
 Thumbs.db
 desktop.ini
 *.tmp
+
+# Log que o PHP do cPanel grava na pasta onde algo roda. Um arquivo solto no
+# clone do servidor faz o cPanel recusar o deploy por "alteracao pendente".
+error_log
