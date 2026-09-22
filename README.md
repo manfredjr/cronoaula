@@ -16,6 +16,18 @@ Baixa apenas o programa, um arquivo só. Você não precisa do código-fonte par
 usá-lo. Se quiser ver todas as versões, use a página de
 [Releases](https://github.com/manfredjr/cronoaula/releases).
 
+### **[Usar no navegador](https://cronoaula.escalada.dev/usar/)**
+
+Sem instalar nada. Serve para projetar o tempo para a turma em tela cheia, para computadores
+que não deixam instalar programas e para usar no celular ou tablet. O que ela não faz: ficar
+por cima do PowerPoint e receber atalhos com outro programa em foco. Para isso, use o programa
+de Windows.
+
+No Safari, principalmente no iPhone com a tela bloqueada, o navegador pode suspender o som da
+página. Enquanto conta, a página pede para a tela não apagar, o que evita o caso na maioria
+das vezes. Em iPhones com iOS mais antigo, a chave lateral de silêncio pode mudar o alerta
+para mudo, então deixe a chave desligada se for contar com o som.
+
 ---
 
 ## Por que ele existe
@@ -598,6 +610,9 @@ a compilação em tempo de execução.
 
 Sem telemetria, sem acesso à rede, sem necessidade de administrador. O único
 arquivo que o programa escreve é o `config.json` com as suas preferências.
+
+A versão no navegador segue a mesma regra: não busca nada fora de `cronoaula.escalada.dev`, e
+as preferências ficam só no navegador de quem usa.
 
 ---
 

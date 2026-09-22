@@ -18,6 +18,7 @@ deployment:
         - cd $REPO && git log --oneline -1
         - test -f $REPO/public/index.html
         - test -f $REPO/public/favicon.ico
+        - test -f $REPO/public/usar/index.html
         - chmod 755 $REPO
         - cd $REPO && find public -type d -exec chmod 755 {} \;
         - cd $REPO && find public -type f -exec chmod 644 {} \;

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CronoAula - cronômetro de contagem regressiva para sala de aula</title>
-<meta name="description" content="Cronômetro regressivo que fica visível por cima do PowerPoint e do ambiente de programação. Gratuito, sem instalador, feito para professores. Software livre.">
+<meta name="description" content="Cronômetro regressivo para aulas. Use no navegador, para projetar ou no celular, ou baixe para Windows e deixe por cima do PowerPoint. Gratuito, feito para professores. Software livre.">
 <link rel="icon" href="favicon.ico">
 <meta property="og:title" content="CronoAula - cronômetro para sala de aula">
 <meta property="og:description" content="Cronômetro regressivo que fica visível por cima de apresentações. Gratuito, sem instalador, feito para professores.">
@@ -89,7 +89,7 @@
   }
   .btn:hover { opacity: .88; }
   .btn-main { background: var(--accent); color: var(--accent-ink); }
-  .btn-alt { border-color: var(--border); color: var(--ink); background: var(--surface); }
+  .btn-alt { border: 1.5px solid var(--accent); color: var(--accent); background: transparent; }
   .fineprint { font-size: .88rem; color: var(--ink-soft); margin-top: 16px; }
 
   /* ---- secoes ---- */
@@ -144,11 +144,8 @@
     .rodape-logo { order: 0; }
     .rodape-logo img { height: 38px; }
   }
-  /* O logo e verde escuro sobre transparente e sumiria no fundo escuro: um fundo
-     claro fino so atras dele, como no UniTask e no ChamaAula. */
-  @media (prefers-color-scheme: dark) {
-    .rodape-logo { background: #f5f7f2; padding: 2px; }
-  }
+  /* No modo escuro, o <picture> do rodape troca para a versao do logo com o
+     texto em branco, como pede o manual da marca, sem caixa clara atras. */
 </style>
 </head>
 <body>
@@ -167,13 +164,12 @@
   </div>
 
   <div class="cta">
-    <a class="btn btn-main" href="https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe">
-      Baixar o CronoAula
-    </a>
-    <a class="btn btn-alt" href="https://github.com/manfredjr/cronoaula">Ver o projeto no GitHub</a>
+    <a class="btn btn-main" href="usar/">Usar no navegador</a>
+    <a class="btn btn-alt" href="https://github.com/manfredjr/cronoaula/releases/latest/download/CronoAula.exe">Baixar para Windows</a>
   </div>
   <p class="fineprint">
-    Gratuito e de código aberto. Windows 10 ou 11, 64 bits. Arquivo único, sem instalador.
+    No navegador, dá para projetar para a turma e usar sem instalar nada.<br>
+    Para Windows, o programa fica por cima do PowerPoint. Windows 10 ou 11, 64 bits, arquivo único.
   </p>
 </header>
 
@@ -275,7 +271,10 @@
     </p>
   </div>
   <a class="rodape-logo" href="https://www.manfred.com.br" target="_blank" rel="noopener">
-    <img src="logo-mt.png" alt="MT - Manfred Tecnologia" width="37" height="28">
+    <picture>
+      <source srcset="logo-mt-claro.svg" media="(prefers-color-scheme: dark)">
+      <img src="logo-mt.png" alt="MT - Manfred Tecnologia" width="37" height="28">
+    </picture>
   </a>
 </footer>
 

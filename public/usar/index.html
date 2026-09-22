@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CronoAula no navegador</title>
+<meta name="description" content="Cronômetro de contagem regressiva para aulas, direto no navegador. Projete para a turma em tela cheia ou use no celular, sem instalar nada.">
+<meta name="theme-color" content="#151917">
+<link rel="icon" href="../favicon.ico">
+<link rel="canonical" href="https://cronoaula.escalada.dev/usar/">
+<link rel="stylesheet" href="usar.css">
+<script type="module" src="js/tela.js"></script>
+</head>
+<body data-faixa="normal">
+
+<main class="palco">
+  <div class="topo">
+    <button type="button" class="discreto" id="tela-cheia">Tela cheia (F)</button>
+    <button type="button" class="discreto" id="abrir-ajustes" aria-haspopup="dialog">Ajustes</button>
+  </div>
+
+  <section class="cartao" aria-label="Cronômetro">
+    <div class="digitos" id="digitos" role="timer">50:00</div>
+    <div class="estado" id="estado" aria-live="polite">pronto</div>
+
+    <div class="linha presets" role="group" aria-label="Tempos rápidos, em minutos">
+      <button type="button" class="botao" data-min="5" aria-pressed="false">5</button>
+      <button type="button" class="botao" data-min="10" aria-pressed="false">10</button>
+      <button type="button" class="botao" data-min="15" aria-pressed="false">15</button>
+      <button type="button" class="botao" data-min="30" aria-pressed="false">30</button>
+      <button type="button" class="botao" data-min="50" aria-pressed="false">50</button>
+    </div>
+
+    <div class="linha controles">
+      <button type="button" class="botao principal" id="iniciar">Iniciar</button>
+      <button type="button" class="botao" id="zerar">Zerar</button>
+      <button type="button" class="botao" id="mais-um">+1 min</button>
+    </div>
+
+    <form class="linha" id="form-tempo" autocomplete="off">
+      <label class="oculto" for="campo-tempo">Tempo: minutos, MM:SS ou HH:MM:SS</label>
+      <input type="text" id="campo-tempo" placeholder="25:00" enterkeyhint="done" spellcheck="false">
+      <button type="submit" class="botao">Carregar</button>
+    </form>
+    <p class="erro" id="erro-tempo" role="alert" hidden>Não entendi esse tempo. Use 25, 25:30 ou 01:05:00.</p>
+  </section>
+
+  <p class="atalhos">Espaço inicia e pausa · R zera · setas somam e tiram 1 minuto · F tela cheia</p>
+  <p class="voltar"><a href="../">Sobre o CronoAula e a versão para Windows</a></p>
+
+  <div class="barra" id="barra" role="toolbar" aria-label="Controles da tela cheia">
+    <button type="button" class="botao principal" id="barra-iniciar">Pausar</button>
+    <button type="button" class="botao" id="barra-zerar">Zerar</button>
+    <button type="button" class="botao" id="barra-mais">+1 min</button>
+    <button type="button" class="botao" id="barra-sair">Sair (Esc)</button>
+  </div>
+</main>
+
+<dialog id="ajustes" aria-labelledby="titulo-ajustes">
+  <form method="dialog" id="form-ajustes">
+    <h2 id="titulo-ajustes" class="oculto">Ajustes</h2>
+
+    <h3 class="grupo">Som</h3>
+    <label class="opcao"><input type="checkbox" name="som"> Tocar sinal ao terminar</label>
+    <label class="opcao">Volume
+      <input type="range" name="volume" min="0" max="100" step="5">
+      <span id="volume-texto">70%</span>
+    </label>
+    <div class="opcao">
+      <span>Repetir</span>
+      <input type="number" name="repeticoes" min="0" max="60" step="1" inputmode="numeric" aria-label="Quantas vezes repetir o alerta">
+      <span>vezes, a cada</span>
+      <input type="number" name="intervalo" min="1" max="30" step="1" inputmode="numeric" aria-label="Segundos entre as repetições">
+      <span>s</span>
+    </div>
+    <p class="dica">Com 0, repete até alguém mexer, no máximo 60 vezes.</p>
+    <div class="opcao">
+      <button type="button" class="botao pequeno" id="testar-alerta">Testar alerta</button>
+      <button type="button" class="botao pequeno" id="testar-aviso">Testar aviso</button>
+    </div>
+
+    <h3 class="grupo">Contagem</h3>
+    <label class="opcao"><input type="checkbox" name="negativo"> Continuar contando em negativo após o zero</label>
+    <div class="opcao">
+      <input type="checkbox" id="aviso-ligado" name="avisoLigado">
+      <label for="aviso-ligado">Avisar faltando</label>
+      <input type="number" name="avisoMinutos" min="1" max="120" step="1" inputmode="numeric" aria-label="Minutos antes do fim">
+      <span>minutos</span>
+    </div>
+
+    <div class="acoes">
+      <button type="button" class="botao" id="restaurar">Restaurar padrões</button>
+      <button type="submit" class="botao principal" value="pronto">Pronto</button>
+    </div>
+  </form>
+</dialog>
+
+<footer class="rodape">
+  <div class="rodape-texto">
+    <p>
+      Desenvolvido e publicado por
+      <a class="rodape-forte" href="https://www.manfred.com.br" target="_blank" rel="noopener">MT - Manfred Tecnologia</a>
+      na plataforma
+      <a class="rodape-forte" href="https://escalada.dev" target="_blank" rel="noopener">Escalada.dev</a>
+    </p>
+    <p class="rodape-links">
+      <a href="https://github.com/manfredjr/cronoaula#readme">Manual de uso</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula">Código-fonte</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula/blob/main/LICENSE">Licença GPL-3.0</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula/issues">Avisar um problema</a>
+    </p>
+  </div>
+  <a class="rodape-logo" href="https://www.manfred.com.br" target="_blank" rel="noopener">
+    <img src="../logo-mt-claro.svg" alt="MT - Manfred Tecnologia" width="37" height="28">
+  </a>
+</footer>
+
+</body>
+</html>
