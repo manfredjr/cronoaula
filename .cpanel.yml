@@ -1,9 +1,10 @@
 ---
 # Tarefas do botao Deploy HEAD Commit do Git Version Control do cPanel.
 #
-# O que vai ao ar e o site estatico em docs/, raiz do subdominio
-# cronoaula.escalada.dev. O programa em si nao roda no servidor; o executavel
-# e baixado do GitHub Releases, pelo link do proprio site.
+# O que vai ao ar e o site estatico em public/, raiz do subdominio
+# cronoaula.escalada.dev, como nos demais projetos da conta. O programa em si
+# nao roda no servidor; o executavel e baixado do GitHub Releases, pelo link
+# do proprio site.
 #
 # O Update from Remote ja troca os arquivos. O deploy so confere e acerta
 # permissao: a pasta clonada nasce com 700, e o Apache nao entra nela.
@@ -15,9 +16,9 @@ deployment:
         - export REPO=/home/manfredjr/repositories/cronoaula
         - echo "=== deploy em $REPO ==="
         - cd $REPO && git log --oneline -1
-        - test -f $REPO/docs/index.html
-        - test -f $REPO/docs/favicon.ico
+        - test -f $REPO/public/index.html
+        - test -f $REPO/public/favicon.ico
         - chmod 755 $REPO
-        - cd $REPO && find docs -type d -exec chmod 755 {} \;
-        - cd $REPO && find docs -type f -exec chmod 644 {} \;
+        - cd $REPO && find public -type d -exec chmod 755 {} \;
+        - cd $REPO && find public -type f -exec chmod 644 {} \;
         - echo "=== deploy concluido ==="
