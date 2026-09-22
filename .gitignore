@@ -6,8 +6,9 @@ obj/
 # O .exe de cada versao e distribuido pela pagina de Releases do GitHub.
 dist/
 
-# Visual Studio / Rider / VS Code
+# Visual Studio / Rider / VS Code / Claude
 .vs/
+.claude/
 .idea/
 *.user
 *.suo

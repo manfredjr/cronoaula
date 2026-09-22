@@ -78,6 +78,34 @@ public class SiteTests
     }
 
     [Fact]
+    public void Rodape_SegueOPadraoDoEcossistema()
+    {
+        // O rodape e o mesmo dos produtos do Escalada.dev (UniTask, ChamaAula):
+        // credito da MT e da plataforma, com os dois links, e o logo ao lado.
+        var raiz = PastaDoSite();
+        var html = File.ReadAllText(Path.Combine(raiz, "index.html"));
+
+        Assert.Contains("Desenvolvido e publicado por", html);
+        Assert.Contains("href=\"https://www.manfred.com.br\"", html);
+        Assert.Contains("href=\"https://escalada.dev\"", html);
+        Assert.Contains("src=\"logo-mt.png\"", html);
+        Assert.True(File.Exists(Path.Combine(raiz, "logo-mt.png")), "public/logo-mt.png nao existe.");
+    }
+
+    [Fact]
+    public void Rodape_MantemONomeDaLicenca()
+    {
+        // Divergencia consciente em relacao ao ChamaAula, registrada no CLAUDE.md
+        // dele: o CronoAula e distribuido de verdade, sob GPL-3.0, entao o nome da
+        // licenca continua no rodape.
+        var html = File.ReadAllText(Path.Combine(PastaDoSite(), "index.html"));
+        var inicio = html.IndexOf("<footer", StringComparison.Ordinal);
+        var rodape = html[inicio..];
+
+        Assert.Contains("GPL-3.0", rodape);
+    }
+
+    [Fact]
     public void PastaDocsAntiga_NaoVoltou()
     {
         // O site ficou em docs/ enquanto era servido pelo GitHub Pages. Uma
