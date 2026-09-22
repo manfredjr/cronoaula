@@ -39,5 +39,26 @@
     { "ms": 59499, "texto": "00:59" },
     { "ms": -80000, "texto": "-01:20" },
     { "ms": -3600000, "texto": "-01:00:00" }
+  ],
+  "faixa": [
+    { "restanteMs": 480000, "duracaoMs": 600000, "faixa": "normal" },
+    { "restanteMs": 540000, "duracaoMs": 600000, "faixa": "normal" },
+    { "restanteMs": 120001, "duracaoMs": 600000, "faixa": "normal" },
+    { "restanteMs": 120000, "duracaoMs": 600000, "faixa": "atencao" },
+    { "restanteMs": 114000, "duracaoMs": 600000, "faixa": "atencao" },
+    { "restanteMs": 60001, "duracaoMs": 600000, "faixa": "atencao" },
+    { "restanteMs": 60000, "duracaoMs": 600000, "faixa": "urgente" },
+    { "restanteMs": 45000, "duracaoMs": 600000, "faixa": "urgente" },
+    { "restanteMs": 30000, "duracaoMs": 600000, "faixa": "urgente" },
+    { "restanteMs": 0, "duracaoMs": 600000, "faixa": "estourado" },
+    { "restanteMs": -1000, "duracaoMs": 600000, "faixa": "estourado" },
+    { "restanteMs": -80000, "duracaoMs": 600000, "faixa": "estourado" },
+    { "restanteMs": 300000, "duracaoMs": 3000000, "faixa": "normal" },
+    { "restanteMs": 108000, "duracaoMs": 3000000, "faixa": "atencao" },
+    { "restanteMs": 180000, "duracaoMs": 300000, "faixa": "normal" },
+    { "restanteMs": 50000, "duracaoMs": 300000, "faixa": "urgente" },
+    { "restanteMs": 84000, "duracaoMs": 420000, "faixa": "atencao" },
+    { "restanteMs": 84001, "duracaoMs": 420000, "faixa": "normal" },
+    { "restanteMs": 0, "duracaoMs": 0, "faixa": "estourado" }
   ]
 }

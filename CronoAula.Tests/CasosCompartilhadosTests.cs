@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CronoAula.Core;
+using CronoAula.ViewModels;
 
 namespace CronoAula.Tests;
 
@@ -62,6 +63,25 @@ public class CasosCompartilhadosTests
 
             if (obtido != esperado)
                 falhas.Add($"{ms} ms: esperado \"{esperado}\", obtido \"{obtido}\"");
+        }
+
+        Assert.True(falhas.Count == 0, string.Join("; ", falhas));
+    }
+
+    [Fact]
+    public void Faixa_SegueOsCasosCompartilhados()
+    {
+        var falhas = new List<string>();
+
+        foreach (var caso in Casos().GetProperty("faixa").EnumerateArray())
+        {
+            var restante = TimeSpan.FromMilliseconds(caso.GetProperty("restanteMs").GetDouble());
+            var duracao = TimeSpan.FromMilliseconds(caso.GetProperty("duracaoMs").GetDouble());
+            var esperado = caso.GetProperty("faixa").GetString();
+            var obtido = MainViewModel.ComputeAlert(restante, duracao).ToString().ToLowerInvariant();
+
+            if (obtido != esperado)
+                falhas.Add($"{restante.TotalMilliseconds} de {duracao.TotalMilliseconds} ms: esperado {esperado}, obtido {obtido}");
         }
 
         Assert.True(falhas.Count == 0, string.Join("; ", falhas));
