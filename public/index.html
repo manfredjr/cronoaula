@@ -115,9 +115,39 @@
   ol li { margin-bottom: 8px; }
 
   a { color: var(--accent); }
-  footer {
-    border-top: 1px solid var(--border); margin-top: 34px;
-    padding: 30px 0 54px; font-size: .89rem; color: var(--ink-soft); text-align: center;
+
+  /* ---- rodape ----
+     Mesmo formato dos produtos do ecossistema Escalada.dev (UniTask, ChamaAula):
+     faixa da largura da pagina com linha fina em cima, letra pequena na cor
+     apagada e o logo da MT ao lado. So os nomes da MT e do Escalada.dev ganham a
+     cor do texto; os links ficam apagados e sublinham ao passar o mouse. No
+     celular tudo empilha e centra, com o logo em cima. So a lista de links e
+     deste produto. */
+  .rodape {
+    width: 100%; margin-top: 34px; padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    text-align: center; font-size: 12px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .rodape-texto p { margin: 0; }
+  .rodape-texto p + p { margin-top: 2px; }
+  .rodape a { color: var(--ink-soft); text-decoration: none; }
+  .rodape a:hover { text-decoration: underline; }
+  .rodape a.rodape-forte { color: var(--ink); font-weight: 500; }
+  .rodape-logo { order: -1; flex-shrink: 0; display: inline-flex; border-radius: 2px; }
+  .rodape-logo img { height: 28px; width: auto; display: block; }
+  /* Lado a lado, o logo tem a altura do bloco de texto: duas linhas de 18 px
+     (12 px com altura 1,5) mais 2 px entre elas dao 38 px. A altura e fixa pela
+     conta, e nao esticada pelo flex. No celular, empilhado, fica com 28 px. */
+  @media (min-width: 640px) {
+    .rodape { flex-direction: row; gap: 12px; text-align: right; }
+    .rodape-logo { order: 0; }
+    .rodape-logo img { height: 38px; }
+  }
+  /* O logo e verde escuro sobre transparente e sumiria no fundo escuro: um fundo
+     claro fino so atras dele, como no UniTask e no ChamaAula. */
+  @media (prefers-color-scheme: dark) {
+    .rodape-logo { background: #f5f7f2; padding: 2px; }
   }
 </style>
 </head>
@@ -229,11 +259,24 @@
 
 </main>
 
-<footer class="wrap">
-  <p>
-    CronoAula - o tempo como parte da aprendizagem.<br>
-    © 2026 MT - Manfred Tecnologia LTDA. Licença GPL-3.0.
-  </p>
+<footer class="rodape">
+  <div class="rodape-texto">
+    <p>
+      Desenvolvido e publicado por
+      <a class="rodape-forte" href="https://www.manfred.com.br" target="_blank" rel="noopener">MT - Manfred Tecnologia</a>
+      na plataforma
+      <a class="rodape-forte" href="https://escalada.dev" target="_blank" rel="noopener">Escalada.dev</a>
+    </p>
+    <p class="rodape-links">
+      <a href="https://github.com/manfredjr/cronoaula#readme">Manual de uso</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula">Código-fonte</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula/blob/main/LICENSE">Licença GPL-3.0</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula/issues">Avisar um problema</a>
+    </p>
+  </div>
+  <a class="rodape-logo" href="https://www.manfred.com.br" target="_blank" rel="noopener">
+    <img src="logo-mt.png" alt="MT - Manfred Tecnologia" width="37" height="28">
+  </a>
 </footer>
 
 </body>
