@@ -1,0 +1,43 @@
+{
+  "_leia": "Casos lidos pelos testes em C# (CasosCompartilhadosTests) e em JavaScript (web-testes). Mudou uma regra? Mude aqui e nos dois lados.",
+  "interpretar": [
+    { "texto": "25:30", "ms": 1530000 },
+    { "texto": "05:00", "ms": 300000 },
+    { "texto": "0:45", "ms": 45000 },
+    { "texto": "90:00", "ms": 5400000 },
+    { "texto": "10: 30", "ms": 630000 },
+    { "texto": "01:05:00", "ms": 3900000 },
+    { "texto": "02:00:30", "ms": 7230000 },
+    { "texto": "25", "ms": 1500000 },
+    { "texto": "5", "ms": 300000 },
+    { "texto": " 10 ", "ms": 600000 },
+    { "texto": "25.5", "ms": 1530000 },
+    { "texto": "25,5", "ms": 1530000 },
+    { "texto": "7,5", "ms": 450000 },
+    { "texto": "", "ms": null },
+    { "texto": "   ", "ms": null },
+    { "texto": "abc", "ms": null },
+    { "texto": "5min", "ms": null },
+    { "texto": "10:99", "ms": null },
+    { "texto": "1:60:00", "ms": null },
+    { "texto": "1:2:3:4", "ms": null },
+    { "texto": "-5", "ms": null },
+    { "texto": "-5:00", "ms": null },
+    { "texto": "1:", "ms": null },
+    { "texto": ":30", "ms": null }
+  ],
+  "formatar": [
+    { "ms": 0, "texto": "00:00" },
+    { "ms": 300000, "texto": "05:00" },
+    { "ms": 1530000, "texto": "25:30" },
+    { "ms": 3540000, "texto": "59:00" },
+    { "ms": 3599000, "texto": "59:59" },
+    { "ms": 3599500, "texto": "01:00:00" },
+    { "ms": 3600000, "texto": "01:00:00" },
+    { "ms": 3900000, "texto": "01:05:00" },
+    { "ms": 59500, "texto": "01:00" },
+    { "ms": 59499, "texto": "00:59" },
+    { "ms": -80000, "texto": "-01:20" },
+    { "ms": -3600000, "texto": "-01:00:00" }
+  ]
+}
