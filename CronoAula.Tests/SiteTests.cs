@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace CronoAula.Tests;
 
 /// <summary>
@@ -13,7 +15,7 @@ public class SiteTests
     private static readonly HashSet<string> ExtensoesDeSite = new(StringComparer.OrdinalIgnoreCase)
     {
         ".html", ".css", ".js", ".ico", ".png", ".svg", ".jpg", ".jpeg", ".webp",
-        ".txt", ".xml", ".webmanifest"
+        ".txt", ".xml", ".webmanifest", ".wav"
     };
 
     private static string PastaDoSite()
@@ -114,5 +116,105 @@ public class SiteTests
 
         Assert.False(File.Exists(Path.Combine(raiz, "docs", "index.html")),
             "docs/index.html reapareceu; o site agora fica so em public/.");
+    }
+
+    private static string PastaUsar() => Path.Combine(PastaDoSite(), "usar");
+
+    [Fact]
+    public void Usar_PaginaExiste()
+    {
+        Assert.True(File.Exists(Path.Combine(PastaUsar(), "index.html")), "public/usar/index.html nao existe.");
+    }
+
+    [Fact]
+    public void Usar_TodoArquivoCarregadoExiste()
+    {
+        // A pagina e os modulos se referem uns aos outros por caminho relativo.
+        // Um nome errado so apareceria no navegador, como tela parada.
+        var raiz = PastaDoSite();
+        var faltando = new List<string>();
+
+        void Conferir(string origem, string referencia)
+        {
+            if (referencia.StartsWith("http", StringComparison.Ordinal) || referencia.StartsWith('#') || referencia.StartsWith("mailto:", StringComparison.Ordinal))
+                return;
+
+            var caminho = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(origem)!, referencia.Replace('/', Path.DirectorySeparatorChar)));
+            if (referencia.EndsWith('/'))
+                caminho = Path.Combine(caminho, "index.html");
+
+            if (!File.Exists(caminho))
+                faltando.Add($"{Path.GetRelativePath(raiz, origem)} -> {referencia}");
+        }
+
+        var html = Path.Combine(PastaUsar(), "index.html");
+        foreach (Match m in Regex.Matches(File.ReadAllText(html), "(?:src|href)=\"([^\"]+)\""))
+            Conferir(html, m.Groups[1].Value);
+
+        foreach (var js in Directory.EnumerateFiles(Path.Combine(PastaUsar(), "js"), "*.js"))
+        {
+            var texto = File.ReadAllText(js);
+            foreach (Match m in Regex.Matches(texto, "from '([^']+)'"))
+                Conferir(js, m.Groups[1].Value);
+            foreach (Match m in Regex.Matches(texto, @"new URL\('([^']+)', import\.meta\.url\)"))
+                Conferir(js, m.Groups[1].Value);
+        }
+
+        Assert.True(faltando.Count == 0, "Referencias quebradas: " + string.Join(", ", faltando));
+    }
+
+    [Theory]
+    [InlineData("alerta.wav")]
+    [InlineData("aviso.wav")]
+    public void Usar_SonsSaoOsMesmosDoPrograma(string nome)
+    {
+        var raiz = PastaDoSite();
+        var web = File.ReadAllBytes(Path.Combine(raiz, "usar", "sons", nome));
+        var programa = File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(raiz)!, "CronoAula", "Assets", nome));
+
+        Assert.True(web.AsSpan().SequenceEqual(programa),
+            $"public/usar/sons/{nome} difere de CronoAula/Assets/{nome}. Copie o do programa de novo.");
+    }
+
+    [Fact]
+    public void Public_NaoTemArquivoDeTeste()
+    {
+        var raiz = PastaDoSite();
+        var testes = Directory.EnumerateFiles(raiz, "*.test.*", SearchOption.AllDirectories)
+            .Select(f => Path.GetRelativePath(raiz, f))
+            .ToList();
+
+        Assert.True(testes.Count == 0, "Arquivos de teste dentro de public/: " + string.Join(", ", testes) + ". Eles ficam em web-testes/.");
+    }
+
+    [Fact]
+    public void Usar_NaoCarregaNadaDeFora()
+    {
+        // Promessa de "sem rede e sem telemetria": a pagina nao busca nada em
+        // outro endereco. Links clicaveis no rodape nao contam, sao navegacao.
+        var pasta = PastaUsar();
+
+        var html = File.ReadAllText(Path.Combine(pasta, "index.html"));
+        Assert.DoesNotMatch("src=\"(https?:)?//", html);
+        Assert.DoesNotMatch("<link[^>]+rel=\"(stylesheet|preload|modulepreload|preconnect)\"[^>]+href=\"(https?:)?//", html);
+
+        var css = File.ReadAllText(Path.Combine(pasta, "usar.css"));
+        Assert.DoesNotContain("@import", css);
+        Assert.DoesNotMatch(@"url\(\s*['""]?(https?:)?//", css);
+
+        foreach (var js in Directory.EnumerateFiles(Path.Combine(pasta, "js"), "*.js"))
+            Assert.DoesNotMatch("https?://", File.ReadAllText(js));
+    }
+
+    [Fact]
+    public void Usar_RodapeSegueOPadraoDoEcossistema()
+    {
+        var html = File.ReadAllText(Path.Combine(PastaUsar(), "index.html"));
+
+        Assert.Contains("Desenvolvido e publicado por", html);
+        Assert.Contains("href=\"https://www.manfred.com.br\"", html);
+        Assert.Contains("href=\"https://escalada.dev\"", html);
+        Assert.Contains("src=\"../logo-mt.png\"", html);
+        Assert.Contains("GPL-3.0", html[html.IndexOf("<footer", StringComparison.Ordinal)..]);
     }
 }

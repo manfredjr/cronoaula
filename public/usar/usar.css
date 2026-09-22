@@ -1,0 +1,170 @@
+/* Versao web do CronoAula. Identidade do Marca.xaml: grafite de fundo, areia
+   nos digitos, verde da MT so como acento. A pagina e sempre escura, como o
+   programa de Windows. Sem fonte externa: tudo do sistema. */
+:root {
+  color-scheme: dark;
+  --pagina: #151917;
+  --grafite: #1e2422;
+  --areia: #f5f7f2;
+  --sec: #98a199;
+  --botao: #333b37;
+  --botao-hover: #3d4641;
+  --borda: #ffffff1f;
+  --borda-forte: #ffffff33;
+  --campo: #242a27;
+  --verde-claro: #6aaf21;
+  --verde-medio: #398024;
+  --verde-profundo: #022f10;
+  --atencao: #e09b2d;
+  --urgente: #e8752d;
+  --estouro: #e86a6f;
+  --digitos: 700 1em/1 Consolas, "SF Mono", ui-monospace, Menlo, "Roboto Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--pagina);
+  color: var(--areia);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button, input { font: inherit; }
+.oculto {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---- tela normal ---- */
+.palco {
+  flex: 1; width: 100%; max-width: 480px; margin: 0 auto;
+  padding: 20px 16px 8px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.topo { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 10px; }
+.discreto {
+  background: transparent; color: var(--sec);
+  border: 1px solid var(--borda-forte); border-radius: 6px;
+  padding: 5px 12px; font-size: .85rem; cursor: pointer;
+}
+.discreto:hover { color: var(--areia); border-color: #ffffff55; }
+
+.cartao {
+  background: var(--grafite); border: 1px solid var(--borda); border-radius: 14px;
+  padding: 24px 18px 18px; text-align: center;
+}
+.digitos {
+  font: var(--digitos);
+  font-size: clamp(64px, 22vw, 112px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+  color: var(--areia);
+  white-space: nowrap;
+}
+.digitos.longo { font-size: clamp(44px, 14vw, 80px); }
+.estado { min-height: 1.5em; margin: 8px 0 16px; color: var(--sec); font-size: .95rem; }
+
+.linha { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 8px; }
+.botao {
+  background: var(--botao); color: var(--areia);
+  border: 0; border-radius: 8px; padding: 10px 16px; min-width: 48px;
+  cursor: pointer;
+}
+.botao:hover { background: var(--botao-hover); }
+.botao.principal { background: var(--verde-claro); color: var(--verde-profundo); font-weight: 600; min-width: 112px; }
+.botao.principal:hover { filter: brightness(1.08); }
+.botao.armado { background: var(--verde-medio); color: #fff; }
+.botao.pequeno { padding: 6px 12px; font-size: .88rem; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--verde-claro); outline-offset: 2px; }
+
+#form-tempo { margin: 6px 0 0; }
+#campo-tempo {
+  width: 120px; background: var(--campo); color: var(--areia);
+  border: 1px solid var(--borda-forte); border-radius: 8px;
+  padding: 9px 12px; text-align: center;
+}
+.erro { color: var(--estouro); font-size: .9rem; margin: 8px 0 0; }
+.atalhos { color: var(--sec); font-size: .8rem; text-align: center; margin: 14px 0 0; }
+.voltar { text-align: center; font-size: .85rem; margin: 10px 0 0; }
+.voltar a { color: var(--sec); }
+.voltar a:hover { color: var(--areia); }
+
+/* ---- faixas de alerta: a cor acompanha o nome escrito na linha de estado ---- */
+body[data-faixa="atencao"] .digitos { color: var(--atencao); }
+body[data-faixa="urgente"] .digitos { color: var(--urgente); }
+body[data-faixa="estourado"] .digitos {
+  color: var(--estouro);
+  animation: esmaecer .9s ease-in-out infinite alternate;
+}
+@keyframes esmaecer { from { opacity: 1; } to { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) {
+  body[data-faixa="estourado"] .digitos { animation: none; }
+}
+
+/* ---- tela cheia (API do navegador) e modo projecao (iPhone) ---- */
+body.cheia .topo, body.cheia .presets, body.cheia .controles, body.cheia #form-tempo,
+body.cheia .erro, body.cheia .atalhos, body.cheia .voltar, body.cheia .rodape,
+body.projecao .topo, body.projecao .presets, body.projecao .controles, body.projecao #form-tempo,
+body.projecao .erro, body.projecao .atalhos, body.projecao .voltar, body.projecao .rodape {
+  display: none;
+}
+body.cheia .palco, body.projecao .palco { max-width: none; padding: 0 16px; }
+body.cheia .cartao, body.projecao .cartao { background: transparent; border: 0; padding: 0; }
+body.cheia .digitos, body.projecao .digitos { font-size: min(26vw, 58vh); }
+body.cheia .digitos.longo, body.projecao .digitos.longo { font-size: min(16vw, 40vh); }
+body.cheia .estado, body.projecao .estado { font-size: clamp(18px, 3.5vw, 40px); margin-top: 12px; }
+body.cheia:not(.barra-visivel) { cursor: none; }
+
+.barra {
+  display: none; position: fixed; right: 16px; bottom: 16px;
+  gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+  padding: 8px; background: #262e2be6; border-radius: 10px;
+  max-width: calc(100vw - 32px);
+}
+body.cheia.barra-visivel .barra, body.projecao.barra-visivel .barra { display: flex; }
+
+/* ---- painel de ajustes ---- */
+dialog {
+  background: var(--grafite); color: var(--areia);
+  border: 1px solid var(--borda); border-radius: 14px;
+  padding: 20px; width: min(420px, calc(100vw - 32px));
+}
+dialog::backdrop { background: #000000aa; }
+.grupo { color: var(--verde-claro); font-size: 1rem; font-weight: 600; margin: 4px 0 6px; }
+.grupo + .opcao { margin-top: 0; }
+.opcao { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.opcao input[type="number"] {
+  width: 64px; background: var(--campo); color: var(--areia);
+  border: 1px solid var(--borda-forte); border-radius: 6px; padding: 4px 6px;
+}
+.opcao input[type="range"] { flex: 1; min-width: 120px; accent-color: var(--verde-claro); }
+.opcao input[type="checkbox"] { accent-color: var(--verde-claro); width: 18px; height: 18px; margin: 0; }
+.dica { color: var(--sec); font-size: .82rem; margin: -4px 0 8px; }
+.acoes { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+
+/* ---- rodape: mesmo padrao da abertura e dos produtos do Escalada.dev ---- */
+.rodape {
+  width: 100%; margin-top: 24px; padding: 12px 16px;
+  border-top: 1px solid var(--borda);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  text-align: center; font-size: 12px; line-height: 1.5; color: var(--sec);
+}
+.rodape-texto p { margin: 0; }
+.rodape-texto p + p { margin-top: 2px; }
+.rodape a { color: var(--sec); text-decoration: none; }
+.rodape a:hover { text-decoration: underline; }
+.rodape a.rodape-forte { color: var(--areia); font-weight: 500; }
+.rodape-logo {
+  order: -1; flex-shrink: 0; display: inline-flex; border-radius: 2px;
+  background: var(--areia); padding: 2px;
+}
+.rodape-logo img { height: 28px; width: auto; display: block; }
+@media (min-width: 640px) {
+  .rodape { flex-direction: row; gap: 12px; text-align: right; }
+  .rodape-logo { order: 0; }
+  .rodape-logo img { height: 38px; }
+}
