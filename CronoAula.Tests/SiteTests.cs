@@ -367,6 +367,7 @@ public class SiteTests
 
         Assert.Contains("page_location", medicao);
         Assert.Contains("page_referrer", medicao);
+        Assert.Contains("page_title", medicao);
         Assert.Contains("allow_google_signals", medicao);
         Assert.Contains("allow_ad_personalization_signals", medicao);
         // Sem o modo de consentimento do Google, que mede tambem quem recusou.
@@ -402,6 +403,10 @@ public class SiteTests
         Assert.Contains("consentimento", html);
         Assert.Contains("dois meses", html);
         Assert.Contains("art. 18", html);
+
+        // Revogar vale daqui para a frente, e a pagina precisa dizer isso
+        // (LGPD, art. 8º, § 5º).
+        Assert.Contains("A revogação vale daqui para a frente", html);
 
         // O que o site promete nao coletar continua escrito, para a pessoa ver
         // a diferenca entre o programa e a pagina.

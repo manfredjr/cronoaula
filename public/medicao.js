@@ -61,6 +61,10 @@ function ligarGoogle() {
     // alguma tela usar parametro, ele nao vai junto.
     page_location: caminhoLimpo(location.href),
     page_referrer: caminhoLimpo(document.referrer),
+    // O titulo tambem vai preso ao que a pagina tinha ao abrir. Hoje nenhuma
+    // tela do CronoAula mexe no titulo, e assim continua se alguem mexer: o
+    // Google nao recebe nada que apareca ali depois.
+    page_title: document.title,
     anonymize_ip: true,
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
