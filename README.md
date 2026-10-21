@@ -608,11 +608,21 @@ a compilação em tempo de execução.
 
 ## Privacidade
 
-Sem telemetria, sem acesso à rede, sem necessidade de administrador. O único
-arquivo que o programa escreve é o `config.json` com as suas preferências.
+**O programa** não tem telemetria, não acessa a rede e não precisa de
+administrador. O único arquivo que ele escreve é o `config.json`, com as suas
+preferências.
 
-A versão no navegador segue a mesma regra: não busca nada fora de `cronoaula.escalada.dev`, e
-as preferências ficam só no navegador de quem usa.
+**A versão no navegador** roda inteira na sua máquina. O cronômetro, os ajustes
+e o último tempo usado ficam no próprio navegador, e nada disso vai para o
+servidor.
+
+**O site mede quantas pessoas abrem cada página, e só se você aceitar.** Desde
+outubro de 2026 aparece um aviso com Aceitar e Recusar, do mesmo tamanho.
+Antes do aceite, nenhuma requisição vai ao Google. Recusando, nada é enviado e
+o site funciona igual, e dá para mudar de ideia pelo link "Rever a escolha de
+medição", no rodapé de qualquer página. O que é medido, por quanto tempo e quem
+recebe está em
+[cronoaula.escalada.dev/privacidade.html](https://cronoaula.escalada.dev/privacidade.html).
 
 ---
 

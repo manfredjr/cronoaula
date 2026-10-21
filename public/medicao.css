@@ -1,0 +1,56 @@
+/* Aviso de medicao de audiencia. Serve as duas paginas do site, que tem fundos
+   diferentes, entao ele traz as proprias cores: grafite e areia da marca MT.
+   Os dois botoes sao identicos de proposito. */
+.medicao-aviso {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 20px;
+  padding: 14px 18px;
+  background: #1e2422;
+  border-top: 1px solid #ffffff2e;
+  color: #f5f7f2;
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  text-align: left;
+}
+.medicao-texto { max-width: 52em; }
+.medicao-aviso h2 {
+  margin: 0 0 3px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #f5f7f2;
+}
+.medicao-aviso p { margin: 0; color: #d6ddd4; }
+.medicao-aviso a { color: #6aaf21; }
+.medicao-botoes { display: flex; gap: 10px; flex-shrink: 0; }
+.medicao-botao {
+  background: #333b37;
+  color: #f5f7f2;
+  border: 1px solid #ffffff38;
+  border-radius: 8px;
+  padding: 9px 22px;
+  min-width: 108px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.medicao-botao:hover { background: #3d4641; }
+.medicao-botao:focus-visible { outline: 2px solid #6aaf21; outline-offset: 2px; }
+
+/* Na tela cheia e no modo projecao da pagina do cronometro, o aviso sai da
+   frente: o que a turma ve e so o tempo. Ele volta quando a pessoa sai. */
+body.cheia .medicao-aviso,
+body.projecao .medicao-aviso { display: none; }
+
+@media (max-width: 620px) {
+  .medicao-aviso { justify-content: stretch; }
+  .medicao-botoes { width: 100%; }
+  .medicao-botao { flex: 1; min-width: 0; }
+}

@@ -1,0 +1,18 @@
+# Cabecalhos do site cronoaula.escalada.dev, servido pelo Apache do cPanel.
+#
+# A politica de conteudo libera so o que o site precisa. Os enderecos do Google
+# Analytics estao aqui porque a medicao de audiencia pode ser ligada por quem
+# aceita o aviso; antes do aceite nada e carregado de la. Sem curinga solto e
+# sem unsafe-eval.
+#
+# style-src aceita estilo embutido porque as paginas trazem o proprio <style>
+# no HTML. Script embutido continua barrado: o medicao.js e o tela.js sao
+# arquivos separados, e e assim que devem continuar.
+#
+# O <IfModule> existe para o caso de a hospedagem nao ter o mod_headers: sem
+# ele o site continua no ar, so que sem os cabecalhos.
+<IfModule mod_headers.c>
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com; img-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
