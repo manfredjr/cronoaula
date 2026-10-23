@@ -19,6 +19,9 @@ deployment:
         - test -f $REPO/public/index.html
         - test -f $REPO/public/favicon.ico
         - test -f $REPO/public/usar/index.html
+        - test -f $REPO/public/privacidade.html
+        - test -f $REPO/public/medicao.js
+        - test -f $REPO/public/.htaccess
         - chmod 755 $REPO
         - cd $REPO && find public -type d -exec chmod 755 {} \;
         - cd $REPO && find public -type f -exec chmod 644 {} \;

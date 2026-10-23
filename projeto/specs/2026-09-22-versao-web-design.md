@@ -27,6 +27,13 @@ do PowerPoint.
 | Editar os tempos rápidos e trocar teclas | Quase ninguém muda. Os tempos são fixos em 5, 10, 15, 30 e 50 |
 | Qualquer biblioteca ou serviço externo | A página não faz requisição a terceiros. A promessa de "sem rede e sem telemetria" do programa vale também para a versão web |
 
+> **Atualização de 21/10/2026.** A linha acima continua valendo para biblioteca e
+> serviço: a página não usa nenhum. A exceção é a medição de audiência do
+> Escalada.dev, decidida pelo Manfred nesta data: o Google Analytics pode ser
+> carregado, e **só depois de a pessoa clicar em Aceitar**. Sem o aceite, nenhuma
+> requisição sai do site. O desenho está em `public/medicao.js` e o texto para quem
+> usa, em `public/privacidade.html`.
+
 ## 3. Onde fica
 
 **Tudo é arquivo estático**, servido pelo Apache do cPanel. Não roda nada no servidor: nem PHP,
@@ -276,7 +283,9 @@ listar o Node.
 - A tela não apaga enquanto conta, onde houver suporte.
 - Ajustes sobrevivem a fechar e abrir a página, e a página funciona com o armazenamento
   bloqueado.
-- A página não faz nenhuma requisição fora de `cronoaula.escalada.dev`.
+- A página não faz nenhuma requisição fora de `cronoaula.escalada.dev` enquanto a pessoa não
+  aceitar a medição de audiência. Aceitando, os únicos endereços de fora são os do Google
+  Analytics, liberados um a um na política de conteúdo do `public/.htaccess`.
 - `dotnet test` e `node --test "web-testes/*.test.js"` passam; o `build.ps1` roda os dois.
 
 ## 12. Riscos conhecidos

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacidade - CronoAula</title>
+<meta name="description" content="O que o CronoAula coleta e o que não coleta, no programa de Windows e no site. Medição de audiência só com o seu aceite.">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="favicon.ico">
+<link rel="canonical" href="https://cronoaula.escalada.dev/privacidade.html">
+<link rel="stylesheet" href="medicao.css">
+<script type="module" src="medicao.js"></script>
+<style>
+  /* Mesmos tokens da abertura do site. */
+  :root {
+    --bg: #f5f7f2;
+    --surface: #ffffff;
+    --border: #e8ede6;
+    --ink: #1e2422;
+    --ink-soft: #6b736e;
+    --accent: #04511f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151917;
+      --surface: #1e2422;
+      --border: #333b37;
+      --ink: #f5f7f2;
+      --ink-soft: #98a199;
+      --accent: #6aaf21;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 120px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 22px; }
+  h1 { font-size: 2.1rem; line-height: 1.2; margin: 54px 0 8px; letter-spacing: -0.015em; }
+  h2 { font-size: 1.25rem; margin: 38px 0 10px; line-height: 1.3; }
+  h3 { font-size: 1.02rem; margin: 24px 0 6px; }
+  p, li { color: var(--ink); }
+  .lede { color: var(--ink-soft); font-size: 1.1rem; margin: 0 0 8px; }
+  .data { color: var(--ink-soft); font-size: .9rem; margin: 0 0 10px; }
+  a { color: var(--accent); }
+  ul { padding-left: 22px; }
+  li { margin: 5px 0; }
+  .caixa {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px; margin: 18px 0;
+  }
+  .voltar { margin: 34px 0 0; }
+
+  /* ---- rodape, igual ao das outras paginas ---- */
+  .rodape {
+    width: 100%; margin-top: 40px; padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    text-align: center; font-size: 12px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .rodape-texto p { margin: 0; color: var(--ink-soft); }
+  .rodape-texto p + p { margin-top: 2px; }
+  .rodape a { color: var(--ink-soft); text-decoration: none; }
+  .rodape a:hover { text-decoration: underline; }
+  .rodape a.rodape-forte { color: var(--ink); font-weight: 500; }
+  .rodape-logo { order: -1; flex-shrink: 0; display: inline-flex; border-radius: 2px; }
+  .rodape-logo img { height: 28px; width: auto; display: block; }
+  @media (min-width: 640px) {
+    .rodape { flex-direction: row; gap: 12px; text-align: right; }
+    .rodape-logo { order: 0; }
+    .rodape-logo img { height: 38px; }
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+
+<h1>Privacidade</h1>
+<p class="lede">O que o CronoAula faz com os seus dados, em palavras simples.</p>
+<p class="data">Versão de 21 de outubro de 2026.</p>
+
+<div class="caixa">
+  <p>
+    O cronômetro não precisa saber quem você é. Não existe cadastro, não existe senha e
+    nenhuma turma, nome ou matrícula é digitada no CronoAula. O que esta página explica é
+    bem pouca coisa: o que fica no seu próprio aparelho e a medição de quantas pessoas
+    abrem o site, que só acontece se você aceitar.
+  </p>
+</div>
+
+<h2>Quem é o responsável</h2>
+<p>
+  MANFRED TECNOLOGIA LTDA, com CNPJ 21.075.901/0001-12, em Joinville, Santa Catarina.
+</p>
+<p>
+  Para qualquer assunto desta página, inclusive os direitos listados no fim, escreva para
+  <a href="mailto:manfred@manfred.com.br">manfred@manfred.com.br</a>.
+</p>
+
+<h2>O programa de Windows</h2>
+<p>
+  O programa que você baixa não acessa a rede e não manda nada para lugar nenhum. Ele
+  escreve um arquivo só, o <code>config.json</code>, com as suas preferências, e esse
+  arquivo fica no seu computador.
+</p>
+
+<h2>O cronômetro no navegador</h2>
+<p>
+  A página <a href="usar/">cronoaula.escalada.dev/usar/</a> roda inteira no seu navegador.
+  O tempo, os ajustes de som e o último tempo usado ficam guardados no próprio navegador,
+  no armazenamento local, e não são enviados para o servidor. Apagar os dados de navegação
+  apaga essas preferências também.
+</p>
+
+<h2 id="medicao">Medição de audiência</h2>
+<p>
+  O site pode medir quantas pessoas abrem cada página, com o Google Analytics. Serve para
+  saber o que é usado e o que não é, e para mostrar o alcance da plataforma Escalada.dev.
+</p>
+
+<h3>Só depois do seu aceite</h3>
+<p>
+  Nada é medido antes de você clicar em Aceitar no aviso. Se você recusar, ou se fechar a
+  página sem escolher, nenhuma informação sai daqui e o site funciona igual. A base legal é
+  o seu consentimento, na forma do art. 7º, inciso I, da Lei Geral de Proteção de Dados.
+  Aceitar não é condição para usar o cronômetro.
+</p>
+
+<h3>O que é enviado</h3>
+<ul>
+  <li>o endereço da página aberta, só o caminho, sem nada depois do ponto de interrogação;</li>
+  <li>o endereço de onde você veio, quando veio de outro site;</li>
+  <li>o aparelho, o sistema e o navegador, em linhas gerais;</li>
+  <li>o país e a região, a partir do endereço de rede, que é anonimizado;</li>
+  <li>quanto você rolou a página e quanto tempo ficou nela.</li>
+</ul>
+<p>
+  Nunca o seu nome, o seu e-mail, nem nada que você digite no cronômetro. O CronoAula não
+  pede nem guarda esses dados em lugar nenhum.
+</p>
+
+<h3>Quem recebe, e a transferência internacional</h3>
+<p>
+  Quem recebe é a Google LLC, que trata esses dados como operadora, por conta e ordem da MT.
+  Os servidores ficam nos Estados Unidos, então há transferência internacional de dados. É
+  por isso que o aviso diz, antes de você decidir, que os dados vão para fora do Brasil: o
+  art. 33, inciso VIII, da Lei Geral de Proteção de Dados exige que o consentimento para a
+  transferência seja específico e informado, separado das outras finalidades.
+</p>
+
+<h3>Por quanto tempo</h3>
+<p>
+  Os eventos ficam por dois meses no Google Analytics. Depois desse prazo restam apenas
+  estatísticas somadas, como o número de visitas por página, que não se referem a ninguém
+  em particular.
+</p>
+
+<h3>O que não acontece</h3>
+<p>
+  Não há publicidade, remarketing, sinais do Google, personalização de anúncio nem
+  cruzamento com a sua conta Google. Também não usamos o modo de consentimento do Google,
+  que continuaria medindo quem recusou. Aqui, recusar significa não carregar nada.
+</p>
+
+<h3>Mudar de ideia</h3>
+<p>
+  A qualquer momento, clique em
+  <a class="rever-medicao" href="#medicao">Rever a escolha de medição</a>, no rodapé de
+  qualquer página. O aviso volta e você escolhe de novo. A sua escolha fica guardada só no
+  seu navegador, numa chave do armazenamento local, sem prazo e sem cookie.
+</p>
+<p>
+  A revogação vale daqui para a frente. O que já tiver sido enviado antes dela continua no
+  Google até o fim do prazo de dois meses, e depois resta só a estatística somada. É o que
+  diz o art. 8º, § 5º, da Lei Geral de Proteção de Dados. Se quiser apagar antes disso,
+  escreva para o endereço do começo desta página.
+</p>
+
+<h2>Seus direitos</h2>
+<p>
+  O art. 18 da Lei Geral de Proteção de Dados garante a você, entre outros direitos,
+  confirmar se há tratamento, acessar os dados, corrigir o que estiver errado, pedir a
+  anonimização, o bloqueio ou a eliminação, pedir a portabilidade, saber com quem os dados
+  foram compartilhados, saber o que acontece se você não consentir e revogar o
+  consentimento a qualquer momento.
+</p>
+<p>
+  Para exercer qualquer um deles, escreva para
+  <a href="mailto:manfred@manfred.com.br">manfred@manfred.com.br</a>. A revogação do
+  consentimento da medição é imediata e não depende de pedido nenhum: basta o link acima.
+</p>
+
+<h2>Mudanças nesta página</h2>
+<p>
+  Se a finalidade da medição mudar, o aviso volta a aparecer e você decide outra vez. A data
+  no alto desta página mostra a versão em vigor.
+</p>
+
+<p class="voltar"><a href="./">Voltar para o CronoAula</a></p>
+
+</main>
+
+<footer class="rodape">
+  <div class="rodape-texto">
+    <p>
+      Desenvolvido e publicado por
+      <a class="rodape-forte" href="https://www.manfred.com.br" target="_blank" rel="noopener">MT - Manfred Tecnologia</a>
+      na plataforma
+      <a class="rodape-forte" href="https://escalada.dev" target="_blank" rel="noopener">Escalada.dev</a>
+    </p>
+    <p class="rodape-links">
+      <a href="https://github.com/manfredjr/cronoaula#readme">Manual de uso</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula">Código-fonte</a> &middot;
+      <a href="https://github.com/manfredjr/cronoaula/blob/main/LICENSE">Licença GPL-3.0</a> &middot;
+      <a class="rever-medicao" href="#medicao">Rever a escolha de medição</a>
+    </p>
+  </div>
+  <a class="rodape-logo" href="https://www.manfred.com.br" target="_blank" rel="noopener">
+    <picture>
+      <source srcset="logo-mt-claro.svg" media="(prefers-color-scheme: dark)">
+      <img src="logo-mt.png" alt="MT - Manfred Tecnologia" width="37" height="28">
+    </picture>
+  </a>
+</footer>
+
+</body>
+</html>

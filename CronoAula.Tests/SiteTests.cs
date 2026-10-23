@@ -18,6 +18,22 @@ public class SiteTests
         ".txt", ".xml", ".webmanifest", ".wav"
     };
 
+    /// <summary>
+    /// Arquivos sem extensao que fazem parte do site. O .htaccess configura o
+    /// Apache do cPanel e precisa estar na raiz publica para valer.
+    /// </summary>
+    private static readonly HashSet<string> ArquivosDeConfiguracao = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".htaccess"
+    };
+
+    /// <summary>Enderecos de fora que a pagina pode carregar, e so eles.</summary>
+    private static readonly string[] EnderecosDoGoogleAnalytics =
+    {
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com"
+    };
+
     private static string PastaDoSite()
     {
         var dir = AppContext.BaseDirectory;
@@ -38,7 +54,8 @@ public class SiteTests
         var raiz = PastaDoSite();
 
         var intrusos = Directory.EnumerateFiles(raiz, "*", SearchOption.AllDirectories)
-            .Where(f => !ExtensoesDeSite.Contains(Path.GetExtension(f)))
+            .Where(f => !ExtensoesDeSite.Contains(Path.GetExtension(f))
+                        && !ArquivosDeConfiguracao.Contains(Path.GetFileName(f)))
             .Select(f => Path.GetRelativePath(raiz, f))
             .ToList();
 
@@ -144,6 +161,12 @@ public class SiteTests
             if (referencia.StartsWith("http", StringComparison.Ordinal) || referencia.StartsWith('#') || referencia.StartsWith("mailto:", StringComparison.Ordinal))
                 return;
 
+            // A ancora e o parametro nao fazem parte do nome do arquivo:
+            // "privacidade.html#medicao" aponta para privacidade.html.
+            referencia = referencia.Split('#')[0].Split('?')[0];
+            if (referencia.Length == 0)
+                return;
+
             var caminho = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(origem)!, referencia.Replace('/', Path.DirectorySeparatorChar)));
             if (referencia.EndsWith('/'))
                 caminho = Path.Combine(caminho, "index.html");
@@ -243,5 +266,171 @@ public class SiteTests
         var yml = File.ReadAllText(Path.Combine(raiz, ".cpanel.yml"));
 
         Assert.Contains("test -f $REPO/public/usar/index.html", yml);
+        Assert.Contains("test -f $REPO/public/privacidade.html", yml);
+        Assert.Contains("test -f $REPO/public/medicao.js", yml);
+    }
+
+    // ------------------------------------------------------------------ medicao
+
+    private static string TextoDaMedicao() => File.ReadAllText(Path.Combine(PastaDoSite(), "medicao.js"));
+
+    private static IEnumerable<string> PaginasDoSite()
+    {
+        var raiz = PastaDoSite();
+        yield return Path.Combine(raiz, "index.html");
+        yield return Path.Combine(raiz, "usar", "index.html");
+        yield return Path.Combine(raiz, "privacidade.html");
+    }
+
+    [Fact]
+    public void Medicao_NenhumaPaginaTrazATagDoGoogle()
+    {
+        // O coracao da promessa: antes do aceite, nenhuma requisicao vai ao
+        // Google. A tag nao fica no HTML; quem a injeta e o medicao.js, e so
+        // depois do clique em Aceitar.
+        foreach (var pagina in PaginasDoSite())
+        {
+            var html = File.ReadAllText(pagina);
+            var nome = Path.GetFileName(Path.GetDirectoryName(pagina)) + "/" + Path.GetFileName(pagina);
+
+            Assert.False(html.Contains("googletagmanager", StringComparison.OrdinalIgnoreCase),
+                $"{nome} traz a tag do Google no HTML, entao ela carregaria sem aceite.");
+            Assert.False(html.Contains("gtag(", StringComparison.OrdinalIgnoreCase),
+                $"{nome} tem codigo do gtag embutido.");
+            Assert.DoesNotMatch("src=\"(https?:)?//", html);
+        }
+    }
+
+    [Fact]
+    public void Medicao_SoFalaComOGoogleAnalytics()
+    {
+        // Fora os enderecos do Google Analytics, a pagina nao busca nada de
+        // terceiro. Vale para todo JavaScript e todo CSS da pasta publica.
+        var raiz = PastaDoSite();
+        var medicao = TextoDaMedicao();
+
+        foreach (Match m in Regex.Matches(medicao, @"https?://[^\s'""()]+"))
+        {
+            var endereco = m.Value;
+            Assert.True(EnderecosDoGoogleAnalytics.Any(e => endereco.StartsWith(e, StringComparison.Ordinal)),
+                $"medicao.js busca {endereco}, que nao e do Google Analytics.");
+        }
+
+        foreach (var js in Directory.EnumerateFiles(raiz, "*.js", SearchOption.AllDirectories)
+                     .Where(f => !string.Equals(Path.GetFileName(f), "medicao.js", StringComparison.OrdinalIgnoreCase)))
+            Assert.DoesNotMatch("https?://", File.ReadAllText(js));
+
+        foreach (var css in Directory.EnumerateFiles(raiz, "*.css", SearchOption.AllDirectories))
+        {
+            var texto = File.ReadAllText(css);
+            Assert.DoesNotContain("@import", texto);
+            Assert.DoesNotMatch(@"url\(\s*['""]?(https?:)?//", texto);
+        }
+    }
+
+    [Fact]
+    public void Medicao_AvisoTemOsDoisCaminhosEContaDaTransferencia()
+    {
+        // O aviso e o momento do consentimento. A LGPD, art. 33, VIII, exige
+        // informacao previa sobre o carater internacional da transferencia no
+        // proprio pedido, e nao so na politica.
+        var medicao = TextoDaMedicao();
+
+        Assert.Contains("Medição de audiência", medicao);
+        Assert.Contains("Google Analytics", medicao);
+        Assert.Contains("Google LLC", medicao);
+        Assert.Contains("fora do Brasil", medicao);
+        Assert.Contains("nada é enviado e o site funciona igual", medicao);
+        Assert.Contains("Como isso funciona", medicao);
+        Assert.Contains("Aceitar", medicao);
+        Assert.Contains("Recusar", medicao);
+    }
+
+    [Fact]
+    public void Medicao_GuardaAEscolhaSoNoNavegador()
+    {
+        // Uma chave so no localStorage, sem prazo e sem cookie: a escolha nao
+        // vai ao servidor nem atravessa subdominio.
+        var medicao = TextoDaMedicao();
+
+        Assert.Contains("cronoaula.medicao", medicao);
+        Assert.Contains("localStorage", medicao);
+        Assert.DoesNotContain("document.cookie", medicao);
+    }
+
+    [Fact]
+    public void Medicao_NaoMandaOEnderecoSujoNemPersonalizaAnuncio()
+    {
+        // O Google recebe o caminho limpo. Se um dia alguma tela usar token ou
+        // parametro, ele nao vai junto.
+        var medicao = TextoDaMedicao();
+
+        Assert.Contains("page_location", medicao);
+        Assert.Contains("page_referrer", medicao);
+        Assert.Contains("page_title", medicao);
+        Assert.Contains("allow_google_signals", medicao);
+        Assert.Contains("allow_ad_personalization_signals", medicao);
+        // Sem o modo de consentimento do Google, que mede tambem quem recusou.
+        Assert.DoesNotContain("'consent'", medicao);
+    }
+
+    [Fact]
+    public void Medicao_TodaPaginaDeixaReverAEscolha()
+    {
+        // Revogar o consentimento tem que ser gratuito e facilitado
+        // (LGPD, art. 8º, § 5º): o link fica no rodape de todas as paginas.
+        foreach (var pagina in PaginasDoSite())
+        {
+            var html = File.ReadAllText(pagina);
+            Assert.Contains("Rever a escolha de medição", html);
+            Assert.Contains("rever-medicao", html);
+        }
+    }
+
+    [Fact]
+    public void Privacidade_TemOQueALeiPede()
+    {
+        // LGPD, art. 9º: finalidade, duracao, quem e o controlador, contato,
+        // com quem os dados sao compartilhados e os direitos do art. 18.
+        var html = File.ReadAllText(Path.Combine(PastaDoSite(), "privacidade.html"));
+
+        Assert.Contains("MANFRED TECNOLOGIA LTDA", html);
+        Assert.Contains("21.075.901/0001-12", html);
+        Assert.Contains("manfred@manfred.com.br", html);
+        Assert.Contains("id=\"medicao\"", html);
+        Assert.Contains("Google LLC", html);
+        Assert.Contains("transferência internacional", html);
+        Assert.Contains("consentimento", html);
+        Assert.Contains("dois meses", html);
+        Assert.Contains("art. 18", html);
+
+        // Revogar vale daqui para a frente, e a pagina precisa dizer isso
+        // (LGPD, art. 8º, § 5º).
+        Assert.Contains("A revogação vale daqui para a frente", html);
+
+        // O que o site promete nao coletar continua escrito, para a pessoa ver
+        // a diferenca entre o programa e a pagina.
+        Assert.Contains("Não há publicidade", html);
+    }
+
+    [Fact]
+    public void Politica_DeConteudoLiberaSoOGoogleAnalytics()
+    {
+        var raiz = PastaDoSite();
+        var htaccess = File.ReadAllText(Path.Combine(raiz, ".htaccess"));
+
+        // So a politica em si, e nao os comentarios que explicam o arquivo.
+        var linha = Regex.Match(htaccess, "Header set Content-Security-Policy \"([^\"]+)\"");
+        Assert.True(linha.Success, "O .htaccess nao define a Content-Security-Policy.");
+        var politica = linha.Groups[1].Value;
+
+        Assert.Contains("script-src 'self' https://www.googletagmanager.com", politica);
+        Assert.Contains("https://www.google-analytics.com", politica);
+        Assert.Contains("https://*.analytics.google.com", politica);
+        Assert.Contains("object-src 'none'", politica);
+
+        // Sem curinga solto e sem unsafe-eval, como combinado com a Escalada.
+        Assert.DoesNotContain("unsafe-eval", politica);
+        Assert.DoesNotMatch(@"-src[^;]*\s\*[\s;]", politica);
     }
 }
